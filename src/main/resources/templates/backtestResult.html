@@ -1,0 +1,22 @@
+<!-- src/main/resources/templates/backtestResult.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Backtest Result</title>
+</head>
+<body>
+<h1>Backtest Result</h1>
+
+<div th:if="${result != null}">
+    <p>Total Return: <span th:text="${result.totalReturn}">0.00</span></p>
+    <p>기간: <span th:text="${result.duration}">-</span></p>
+    <p>초기 자본: <span th:text="${result.initialCapital}">-</span></p>
+</div>
+<div th:if="${result == null}">
+    <p>No result data found.</p>
+</div>
+
+<a href="/backtest/form">Go Back</a>
+
+</body>
+</html>

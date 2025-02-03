@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Portfolio Backtest Form</title>
+    <meta charset="UTF-8">
+
+    <style>
+        /* ====== 자산 필드 레이아웃 ====== */
+        .asset-row {
+            margin-bottom: 8px;
+        }
+
+        /* ====== 자동완성 스타일 ====== */
+        .autocomplete-container {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px; /* 예시로 약간의 여백 */
+        }
+        .autocomplete-list {
+            border: 1px solid #ccc;
+            background-color: #fff;
+            position: absolute;
+            z-index: 999;
+            width: 200px; /* input 폭에 맞춰 조정 */
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 2px;
+        }
+        .autocomplete-item {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .autocomplete-item:hover {
+            background-color: #eee;
+        }
+    </style>
+
+    <script>
+        /* ==========================
+           자산 추가/초기화 스크립트
+         ========================== */
+        let assetCount = 1;
+
+        function addAssetFields() {
+            assetCount++;
+
+            const container = document.getElementById("assetContainer");
+
+            // 새 자산 행을 담을 div
+            const assetDiv = document.createElement("div");
+            assetDiv.classList.add("asset-row");
+
+            // 이 자산 행에서 사용할 autocomplete 리스트 영역의 ID
+            const newListId = `autocomplete-list-${assetCount}`;
+
+            // 자산 n번째 필드 HTML:
+            // 자동완성 구조(autocomplete-container) + oninput 콜백 지정
+            assetDiv.innerHTML = `
+                <label>자산 ${assetCount} 종목:</label>
+                <div class="autocomplete-container">
+                    <input type="text" name="asset${assetCount}"
+                        oninput="onTickerInput(this, '${newListId}')"
+                    />
+                    <div id="${newListId}" class="autocomplete-list" style="display:none;"></div>
+                </div>
+
+                <label>비율(%):</label>
+                <input type="number" name="allocation${assetCount}" />
+            `;
+
+            container.appendChild(assetDiv);
+        }
+
+        function resetFormFields() {
+            assetCount = 1;
+
+            const container = document.getElementById("assetContainer");
+            container.innerHTML = `
+                <div class="asset-row">
+                    <label>자산 1 종목:</label>
+                    <div class="autocomplete-container">
+                        <input type="text" name="asset1"
+                               oninput="onTickerInput(this, 'autocomplete-list-1')" />
+                        <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
+                    </div>
+                    <label>비율(%):</label>
+                    <input type="number" name="allocation1" />
+                </div>
+            `;
+        }
+
+        /* ==========================
+           자동완성(AutoComplete) 로직
+         ========================== */
+        async function onTickerInput(inputElem, listElemId) {
+            const query = inputElem.value.trim();
+            const listContainer = document.getElementById(listElemId);
+            if (!listContainer) return;
+
+            // 입력값 없으면 목록 숨기기
+            if (!query) {
+                listContainer.innerHTML = '';
+                listContainer.style.display = 'none';
+                return;
+            }
+
+            try {
+                // 백엔드 검색 API 호출
+                const response = await fetch(`/api/tickers?query=${query}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                // data: [{symbol: "...", fullName: "..."}, ...]
+
+                if (data && data.length > 0) {
+                    listContainer.innerHTML = '';
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        div.textContent = `${item.fullName} (${item.ticker})`;
+
+                        // 항목 클릭 시 input에 symbol 설정
+                        div.addEventListener('click', () => {
+                            inputElem.value = `${item.fullName} (${item.ticker})`; // 이름(티커) 형식으로 입력
+                            listContainer.innerHTML = '';
+                            listContainer.style.display = 'none';
+                        });
+
+                        listContainer.appendChild(div);
+                    });
+                    listContainer.style.display = 'block';
+                } else {
+                    // 결과 없으면 숨김
+                    listContainer.innerHTML = '';
+                    listContainer.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Error fetching tickers:', err);
+            }
+        }
+    </script>
+</head>
+<body>
+
+<h1>Portfolio Backtest Form</h1>
+
+<form action="/backtest/run" method="post" id="myForm">
+    <!-- 자산 1개만 표시 (자동완성 적용) -->
+    <div id="assetContainer">
+        <div class="asset-row">
+            <label>자산 1 종목:</label>
+            <div class="autocomplete-container">
+                <input type="text" name="asset1"
+                       oninput="onTickerInput(this, 'autocomplete-list-1')" />
+                <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
+            </div>
+            <label>비율(%):</label>
+            <input type="number" name="allocation1" />
+        </div>
+    </div>
+
+    <br>
+    <!-- 자산 추가하기 버튼 -->
+    <button type="button" onclick="addAssetFields()">자산 추가하기</button>
+    <!-- 초기화 버튼 -->
+    <button type="button" onclick="resetFormFields()">초기화</button>
+
+    <br><br>
+    <!-- 백테스트 제출 버튼 -->
+    <button type="submit">Run Backtest</button>
+</form>
+
+</body>
+</html>
