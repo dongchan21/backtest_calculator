@@ -1,37 +1,56 @@
-HELP.md
-.gradle
+# Gradle
+.gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# Maven
+target/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IntelliJ IDEA
+.idea/
 *.iml
 *.ipr
+*.iws
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
-### NetBeans ###
+# STS (Spring Tool Suite)
+.sts4-cache/
+.springBeans/
+
+# VS Code
+.vscode/
+
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
-.vscode/
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Compiled files
+*.class
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+*.old
+*.orig
+
+# Application-specific files
+HELP.md
+
+# Node.js (if using front-end libraries)
+node_modules/
+
+# Ignore generated files in src (if necessary)
+!**/src/main/**/build/
+!**/src/test/**/build/

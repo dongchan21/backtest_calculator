@@ -140,6 +140,46 @@
                 console.error('Error fetching tickers:', err);
             }
         }
+        /* ==========================
+       폼 유효성 검사 로직
+     ========================== */
+        function validateForm(event) {
+            event.preventDefault(); // 기본 제출 동작 방지
+
+            const missingFields = []; // 누락된 필드 저장
+
+            // 입력 필드 선택
+            const startDate = document.getElementById("startDate");
+            const endDate = document.getElementById("endDate");
+            const initialSeed = document.getElementById("initial-seed");
+            const monthlyInvestment = document.getElementById("monthly-investment");
+            const assetFields = document.querySelectorAll("[name^='asset']");
+            const allocationFields = document.querySelectorAll("[name^='allocation']");
+
+            // 시작 날짜 확인
+            if (!startDate.value) missingFields.push("백테스트 시작 날짜");
+            if (!endDate.value) missingFields.push("백테스트 종료 날짜");
+
+            // 초기 시드와 매달 투자 시드 확인
+            if (!initialSeed.value) missingFields.push("초기 시드");
+            if (!monthlyInvestment.value) missingFields.push("매달 투자할 시드");
+
+            // 자산 종목과 비율 확인
+            assetFields.forEach((field, index) => {
+                if (!field.value) missingFields.push(`자산 ${index + 1} 종목`);
+            });
+            allocationFields.forEach((field, index) => {
+                if (!field.value) missingFields.push(`자산 ${index + 1} 비율`);
+            });
+
+            // 누락된 필드가 있을 경우 알림창 표시
+            if (missingFields.length > 0) {
+                alert(`다음 필드를 입력해주세요:\n\n${missingFields.join("\n")}`);
+            } else {
+                // 유효성 검사 통과 시 폼 제출
+                document.getElementById("myForm").submit();
+            }
+        }
     </script>
 </head>
 <body>
@@ -148,28 +188,54 @@
 
 <form action="/backtest/run" method="post" id="myForm">
     <!-- 자산 1개만 표시 (자동완성 적용) -->
+
+    <div>
+        <label for="startDate">백테스트 시작 날짜:</label>
+        <input type="date" id="startDate" name="startDate" required>
+        <br>
+        <label for="endDate">백테스트 종료 날짜:</label>
+        <input type="date" id="endDate" name="endDate" required>
+    </div>
+    <br>
     <div id="assetContainer">
         <div class="asset-row">
             <label>자산 1 종목:</label>
             <div class="autocomplete-container">
                 <input type="text" name="asset1"
-                       oninput="onTickerInput(this, 'autocomplete-list-1')" />
+                       oninput="onTickerInput(this, 'autocomplete-list-1')"
+                       placeholder="예) SPY 또는 S&P500"
+                       onfocus="placeholder=''"
+                       onblur="placeholder='예) SPY 또는 S&P500'"
+                >
                 <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
             </div>
             <label>비율(%):</label>
-            <input type="number" name="allocation1" />
+            <input type="number" name="allocation1"
+                   placeholder="최대 100"
+                   onfocus="placeholder=''"
+                   onblur="placeholder='최대 100'"/>
         </div>
     </div>
 
-    <br>
     <!-- 자산 추가하기 버튼 -->
     <button type="button" onclick="addAssetFields()">자산 추가하기</button>
     <!-- 초기화 버튼 -->
     <button type="button" onclick="resetFormFields()">초기화</button>
 
     <br><br>
+
+    <form>
+        <label for="initial-seed">초기 시드:</label><br>
+        <input type="number" id="initial-seed" name="initial-seed"><br><br>
+
+        <label for="monthly-investment">매달 투자할 시드:</label><br>
+        <input type="number" id="monthly-investment" name="monthly-investment"><br>
+
+    </form>
+
+
     <!-- 백테스트 제출 버튼 -->
-    <button type="submit">Run Backtest</button>
+    <button type="submit" onclick="validateForm(event)">Run Backtest</button>
 </form>
 
 </body>
