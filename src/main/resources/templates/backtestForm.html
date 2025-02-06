@@ -59,14 +59,14 @@
             assetDiv.innerHTML = `
                 <label>자산 ${assetCount} 종목:</label>
                 <div class="autocomplete-container">
-                    <input type="text" name="assets"
+                    <input type="text" name="assets" required
                         oninput="onTickerInput(this, '${newListId}')"
                     />
                     <div id="${newListId}" class="autocomplete-list" style="display:none;"></div>
                 </div>
 
                 <label>비율(%):</label>
-                <input type="number" name="allocations" />
+                <input type="number" name="allocations" required />
             `;
 
             container.appendChild(assetDiv);
@@ -80,12 +80,12 @@
                 <div class="asset-row">
                     <label>자산 1 종목:</label>
                     <div class="autocomplete-container">
-                        <input type="text" name="assets"
+                        <input type="text" name="assets" required
                                oninput="onTickerInput(this, 'autocomplete-list-1')" />
                         <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
                     </div>
                     <label>비율(%):</label>
-                    <input type="number" name="allocations" />
+                    <input type="number" name="allocations" required/>
                 </div>
             `;
         }
@@ -147,48 +147,33 @@
         function validateForm(event) {
             event.preventDefault(); // 기본 제출 동작 방지
 
-            const missingFields = []; // 누락된 필드 저장
+            const missingFields = [];
+            const startDate = document.getElementById("startDate").value.trim();
+            const endDate = document.getElementById("endDate").value.trim();
+            const initialSeed = document.getElementById("initial-seed").value.trim();
+            const monthlyInvestment = document.getElementById("monthly-investment").value.trim();
 
-            // 입력 필드 선택
-            const startDate = document.getElementById("startDate");
-            const endDate = document.getElementById("endDate");
-            const initialSeed = document.getElementById("initial-seed");
-            const monthlyInvestment = document.getElementById("monthly-investment");
-            const assetFields = document.querySelectorAll("[name^='asset']");
-            const allocationFields = document.querySelectorAll("[name^='allocation']");
+            if (!startDate) missingFields.push("백테스트 시작 날짜");
+            if (!endDate) missingFields.push("백테스트 종료 날짜");
+            if (!initialSeed) missingFields.push("초기 시드");
+            if (!monthlyInvestment) missingFields.push("매달 투자할 시드");
 
-            // 시작 날짜 확인
-            if (!startDate.value) missingFields.push("백테스트 시작 날짜");
-            if (!endDate.value) missingFields.push("백테스트 종료 날짜");
-
-            // 초기 시드와 매달 투자 시드 확인
-            if (!initialSeed.value) missingFields.push("초기 시드");
-            if (!monthlyInvestment.value) missingFields.push("매달 투자할 시드");
-
-            // 자산 종목과 비율 확인
-            assetFields.forEach((field, index) => {
-                if (!field.value) missingFields.push(`자산 ${index + 1} 종목`);
-            });
-            allocationFields.forEach((field, index) => {
-                if (!field.value) missingFields.push(`자산 ${index + 1} 비율`);
-            });
-
-            // 누락된 필드가 있을 경우 알림창 표시
             if (missingFields.length > 0) {
                 alert(`다음 필드를 입력해주세요:\n\n${missingFields.join("\n")}`);
             } else {
-                // 유효성 검사 통과 시 폼 제출
                 document.getElementById("myForm").submit();
             }
         }
+
+
     </script>
 </head>
 <body>
 
 <h1>Portfolio Backtest Form</h1>
 
-<form action="/backtest/run" method="post" id="myForm">
-    <!-- 자산 1개만 표시 (자동완성 적용) -->
+<form action="/backtest/run" method="post" id="myForm" onsubmit="validateForm(event)">
+    <!-- 날짜 입력 부분 생략 -->
 
     <div>
         <label for="startDate">백테스트 시작 날짜:</label>
@@ -203,37 +188,42 @@
         <div class="asset-row">
             <label>자산 1 종목:</label>
             <div class="autocomplete-container">
-                <input type="text" name="asset-input"
+                <input type="text" name="assets"
                        oninput="onTickerInput(this, 'autocomplete-list-1')"
-                       placeholder="예) SPY 또는 S&P500"
-                       onfocus="placeholder=''"
-                       onblur="placeholder='예) SPY 또는 S&P500'"
-                >
+                       placeholder="예) SPY 또는 S&P500">
                 <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
             </div>
             <label>비율(%):</label>
-            <input type="number" name="allocation-input"
-                   placeholder="최대 100"
-                   onfocus="placeholder=''"
-                   onblur="placeholder='최대 100'"/>
+            <input type="number" name="allocations"
+                   placeholder="최대 100"/>
         </div>
     </div>
 
-    <form>
+    <br>
+    <!-- 자산 추가하기 버튼 -->
+    <button type="button" onclick="addAssetFields()">자산 추가하기</button>
+    <!-- 초기화 버튼 -->
+    <button type="button" onclick="resetFormFields()">초기화</button>
+
+    <br><br>
+
+    <!-- 초기 시드 입력 부분 (중첩 form 제거) -->
+    <div>
         <label for="initial-seed">초기 시드:</label><br>
         <div class="input-container">
-            <input type="text" id="initial-seed" name="initial-seed" oninput="formatNumber(this)" />
+            <input type="number" id="initial-seed" name="initialSeed" required />
             <span class="unit">원</span>
         </div>
-        <br>
+    </div>
 
+    <!-- 월 투자금 입력 부분 -->
+    <div>
         <label for="monthly-investment">매달 투자할 시드:</label><br>
         <div class="input-container">
-            <input type="text" id="monthly-investment" name="monthly-investment" oninput="formatNumber(this)" />
+            <input type="number" id="monthly-investment" name="monthlyInvestment" required />
             <span class="unit">원</span>
         </div>
-        <br>
-    </form>
+    </div>
 
     <style>
         /* 입력 필드와 '원' 텍스트를 담는 컨테이너 스타일 */
@@ -260,23 +250,6 @@
         }
     </style>
 
-    <script>
-        // 숫자에 콤마를 추가하는 함수
-        function formatNumber(input) {
-            // 현재 입력된 값에서 콤마를 제거
-            const value = input.value.replace(/,/g, "");
-
-            // 숫자가 아니면 빈 값으로 처리
-            if (isNaN(value)) {
-                input.value = "";
-                return;
-            }
-
-            // 숫자를 포맷팅하여 콤마 추가
-            input.value = Number(value).toLocaleString();
-        }
-
-    </script>
 
     <br><br>
 

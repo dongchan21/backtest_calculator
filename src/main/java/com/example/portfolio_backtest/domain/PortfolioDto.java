@@ -7,6 +7,7 @@ public class PortfolioDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private double initialCapital;
+    private double monthlyInvestment;
 
     // Getter/Setter
     public Map<String, Double> getAllocations() {
@@ -35,5 +36,13 @@ public class PortfolioDto {
     }
     public void setInitialCapital(double initialCapital) {
         this.initialCapital = initialCapital;
+    }
+
+    public double getMonthlyInvestment() {
+        return monthlyInvestment;
+    }
+
+    public void setMonthlyInvestment(double monthlyInvestment) {
+        this.monthlyInvestment = monthlyInvestment;
     }
 }

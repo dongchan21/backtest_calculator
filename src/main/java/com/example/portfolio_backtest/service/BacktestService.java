@@ -17,8 +17,10 @@ public class BacktestService {
         // 예시 결과: "총 수익률", "그래프 데이터" 등
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("totalReturn", 0.12); // 12% 수익이라고 가정
-        resultMap.put("duration", "2020-01-01 ~ 2020-12-31");
+        resultMap.put("startDate", portfolioDto.getStartDate());
+        resultMap.put("endDate", portfolioDto.getEndDate());
         resultMap.put("initialCapital", portfolioDto.getInitialCapital());
+        resultMap.put("assets", portfolioDto.getAllocations());
 
         // ...필요한 데이터들을 채워서 반환
         return resultMap;

@@ -37,27 +37,32 @@ public class BacktestController {
      */
     @PostMapping("/run")
     public String runBacktest(
-            @RequestBody Map<String, Double> assetAllocations,
+            @RequestParam("assets") List<String> assets,
+            @RequestParam("allocations") List<Double> allocations,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate,
-            @RequestParam("initial-seed") double initialCapital,
-            @RequestParam("monthly-investment") double monthlyInvestment,
+            @RequestParam("initialSeed") Double initialCapital,
+            @RequestParam("monthlyInvestment") Double monthlyInvestment,
             Model model) {
+
+        // 로그 추가 (디버깅용)
+        System.out.println("Received assets: " + assets);
+        System.out.println("Received allocations: " + allocations);
+
+
+        //assets, allocations Map으로 변환
+        Map<String, Double> allocationsMap = new HashMap<>();
+        for (int i = 0; i < assets.size(); i++) {
+            allocationsMap.put(assets.get(i), allocations.get(i));
+        }
 
         // 1) 사용자가 입력한 티커/비중 정보를 PortfolioDto 형태로 변환 (간단 예시)
         PortfolioDto portfolioDto = new PortfolioDto();
 
-        // 여기선 예        // 실제로는 여러 종목을 받을 수 있도록 Map을 생성시로 2개 종목만 처리
-        Map<String, Double> allocations = new java.util.HashMap<>();
-        if (ticker1 != null && allocation1 != null) {
-            allocations.put(ticker1, allocation1);
-        }
-        if (ticker2 != null && allocation2 != null) {
-            allocations.put(ticker2, allocation2);
-        }
-
-        portfolioDto.setAllocations(allocations);
-
+        // set
+        portfolioDto.setAllocations(allocationsMap);
+        portfolioDto.setInitialCapital(initialCapital);
+        portfolioDto.setMonthlyInvestment(monthlyInvestment);
         // 날짜 파싱(간단하게 처리)
         if (startDate != null) {
             portfolioDto.setStartDate(LocalDate.parse(startDate));
@@ -66,7 +71,6 @@ public class BacktestController {
             portfolioDto.setEndDate(LocalDate.parse(endDate));
         }
 
-        portfolioDto.setInitialCapital(initialCapital);
 
         // 2) 백테스트 서비스 로직 호출
         Map<String, Object> result = backtestService.runBacktest(portfolioDto);
