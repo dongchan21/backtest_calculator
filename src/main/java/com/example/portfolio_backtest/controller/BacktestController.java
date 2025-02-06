@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -36,19 +37,17 @@ public class BacktestController {
      */
     @PostMapping("/run")
     public String runBacktest(
-            @RequestParam(required = false) String ticker1,
-            @RequestParam(required = false) Double allocation1,
-            @RequestParam(required = false) String ticker2,
-            @RequestParam(required = false) Double allocation2,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
-            @RequestParam(required = false, defaultValue = "10000") double initialCapital,
+            @RequestBody Map<String, Double> assetAllocations,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate,
+            @RequestParam("initial-seed") double initialCapital,
+            @RequestParam("monthly-investment") double monthlyInvestment,
             Model model) {
 
         // 1) 사용자가 입력한 티커/비중 정보를 PortfolioDto 형태로 변환 (간단 예시)
         PortfolioDto portfolioDto = new PortfolioDto();
-        // 실제로는 여러 종목을 받을 수 있도록 Map을 생성
-        // 여기선 예시로 2개 종목만 처리
+
+        // 여기선 예        // 실제로는 여러 종목을 받을 수 있도록 Map을 생성시로 2개 종목만 처리
         Map<String, Double> allocations = new java.util.HashMap<>();
         if (ticker1 != null && allocation1 != null) {
             allocations.put(ticker1, allocation1);
@@ -56,6 +55,7 @@ public class BacktestController {
         if (ticker2 != null && allocation2 != null) {
             allocations.put(ticker2, allocation2);
         }
+
         portfolioDto.setAllocations(allocations);
 
         // 날짜 파싱(간단하게 처리)
@@ -65,6 +65,7 @@ public class BacktestController {
         if (endDate != null) {
             portfolioDto.setEndDate(LocalDate.parse(endDate));
         }
+
         portfolioDto.setInitialCapital(initialCapital);
 
         // 2) 백테스트 서비스 로직 호출

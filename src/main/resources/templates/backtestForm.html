@@ -36,6 +36,7 @@
     </style>
 
     <script>
+
         /* ==========================
            자산 추가/초기화 스크립트
          ========================== */
@@ -58,14 +59,14 @@
             assetDiv.innerHTML = `
                 <label>자산 ${assetCount} 종목:</label>
                 <div class="autocomplete-container">
-                    <input type="text" name="asset${assetCount}"
+                    <input type="text" name="assets"
                         oninput="onTickerInput(this, '${newListId}')"
                     />
                     <div id="${newListId}" class="autocomplete-list" style="display:none;"></div>
                 </div>
 
                 <label>비율(%):</label>
-                <input type="number" name="allocation${assetCount}" />
+                <input type="number" name="allocations" />
             `;
 
             container.appendChild(assetDiv);
@@ -79,12 +80,12 @@
                 <div class="asset-row">
                     <label>자산 1 종목:</label>
                     <div class="autocomplete-container">
-                        <input type="text" name="asset1"
+                        <input type="text" name="assets"
                                oninput="onTickerInput(this, 'autocomplete-list-1')" />
                         <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
                     </div>
                     <label>비율(%):</label>
-                    <input type="number" name="allocation1" />
+                    <input type="number" name="allocations" />
                 </div>
             `;
         }
@@ -197,11 +198,12 @@
         <input type="date" id="endDate" name="endDate" required>
     </div>
     <br>
+
     <div id="assetContainer">
         <div class="asset-row">
             <label>자산 1 종목:</label>
             <div class="autocomplete-container">
-                <input type="text" name="asset1"
+                <input type="text" name="asset-input"
                        oninput="onTickerInput(this, 'autocomplete-list-1')"
                        placeholder="예) SPY 또는 S&P500"
                        onfocus="placeholder=''"
@@ -210,28 +212,73 @@
                 <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
             </div>
             <label>비율(%):</label>
-            <input type="number" name="allocation1"
+            <input type="number" name="allocation-input"
                    placeholder="최대 100"
                    onfocus="placeholder=''"
                    onblur="placeholder='최대 100'"/>
         </div>
     </div>
 
-    <!-- 자산 추가하기 버튼 -->
-    <button type="button" onclick="addAssetFields()">자산 추가하기</button>
-    <!-- 초기화 버튼 -->
-    <button type="button" onclick="resetFormFields()">초기화</button>
-
-    <br><br>
-
     <form>
         <label for="initial-seed">초기 시드:</label><br>
-        <input type="number" id="initial-seed" name="initial-seed"><br><br>
+        <div class="input-container">
+            <input type="text" id="initial-seed" name="initial-seed" oninput="formatNumber(this)" />
+            <span class="unit">원</span>
+        </div>
+        <br>
 
         <label for="monthly-investment">매달 투자할 시드:</label><br>
-        <input type="number" id="monthly-investment" name="monthly-investment"><br>
-
+        <div class="input-container">
+            <input type="text" id="monthly-investment" name="monthly-investment" oninput="formatNumber(this)" />
+            <span class="unit">원</span>
+        </div>
+        <br>
     </form>
+
+    <style>
+        /* 입력 필드와 '원' 텍스트를 담는 컨테이너 스타일 */
+        .input-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 입력 필드 스타일 */
+        input[type="text"] {
+            padding-right: 30px; /* 오른쪽 여백 확보 */
+            box-sizing: border-box;
+        }
+
+        /* '원' 텍스트 스타일 */
+        .unit {
+            position: absolute;
+            right: 10px; /* 입력 필드 내부 오른쪽 여백 */
+            top: 50%;
+            transform: translateY(-50%);
+            color: gray;
+            font-size: 14px;
+            pointer-events: none; /* 클릭 이벤트 차단 */
+        }
+    </style>
+
+    <script>
+        // 숫자에 콤마를 추가하는 함수
+        function formatNumber(input) {
+            // 현재 입력된 값에서 콤마를 제거
+            const value = input.value.replace(/,/g, "");
+
+            // 숫자가 아니면 빈 값으로 처리
+            if (isNaN(value)) {
+                input.value = "";
+                return;
+            }
+
+            // 숫자를 포맷팅하여 콤마 추가
+            input.value = Number(value).toLocaleString();
+        }
+
+    </script>
+
+    <br><br>
 
 
     <!-- 백테스트 제출 버튼 -->
