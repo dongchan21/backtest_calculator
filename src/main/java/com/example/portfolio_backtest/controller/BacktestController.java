@@ -1,11 +1,13 @@
 package com.example.portfolio_backtest.controller;
 
 import com.example.portfolio_backtest.domain.PortfolioDto;
+import com.example.portfolio_backtest.entity.StockPrice;
 import com.example.portfolio_backtest.service.BacktestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.YearMonth;
 import java.time.LocalDate;
@@ -13,6 +15,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/backtest")
@@ -76,6 +81,33 @@ public class BacktestController {
             portfolioDto.setEndDate(YearMonth.parse(endDate, formatter));
         }
 
+        // ✅ 1. 주식명에서 티커(symbol)만 추출
+        List<String> tickers = extractTickers(assets);
+        System.out.println("Extracted Tickers: " + tickers);  // 디버깅용 출력
+
+
+        //Python 서버로 날짜 넘겨주기
+        LocalDate start = LocalDate.parse(startDate + "-01");
+        LocalDate end = LocalDate.parse(endDate + "-01");
+
+        // 📌 Python 서버에 주식 데이터 요청
+        RestTemplate restTemplate = new RestTemplate();
+        String pythonApiUrl = "http://localhost:5000/update_stock_data";  // Python Flask API URL
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("tickers", tickers);
+        requestBody.put("start_date", start.toString());
+        requestBody.put("end_date", end.toString());
+
+        restTemplate.postForObject(pythonApiUrl, requestBody, String.class);
+
+        // 📌 Python에서 저장된 데이터 가져오기
+        Map<String, List<StockPrice>> stockData = backtestService.getStockData(tickers, start, end);
+
+        model.addAttribute("stockData", stockData);
+        model.addAttribute("assets", tickers);
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
 
         // 2) 백테스트 서비스 로직 호출
         Map<String, Object> result = backtestService.runBacktest(portfolioDto);
@@ -83,8 +115,22 @@ public class BacktestController {
         // 3) 결과를 모델에 담아서 뷰로 전달
         model.addAttribute("result", result);
 
+
         // templates/backtestResult.html 로 이동
         return "backtestResult";
+    }
+    /**
+     * ✅ 주식명에서 티커(symbol)만 추출하는 메서드
+     * 예: ["Apple Inc. (AAPL)", "Tesla Inc. (TSLA)"] → ["AAPL", "TSLA"]
+     */
+    private List<String> extractTickers(List<String> assetNames) {
+        Pattern pattern = Pattern.compile("\\((.*?)\\)");  // 괄호 안의 티커 추출 정규식
+        return assetNames.stream()
+                .map(asset -> {
+                    Matcher matcher = pattern.matcher(asset);
+                    return matcher.find() ? matcher.group(1) : asset;  // 괄호가 없으면 원래 값 반환
+                })
+                .collect(Collectors.toList());
     }
 }
 
