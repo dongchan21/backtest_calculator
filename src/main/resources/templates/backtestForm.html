@@ -152,17 +152,48 @@
             const endDate = document.getElementById("endDate").value.trim();
             const initialSeed = document.getElementById("initial-seed").value.trim();
             const monthlyInvestment = document.getElementById("monthly-investment").value.trim();
+            const allocationFields = document.querySelectorAll("input[name='allocations']");
 
+            let totalAllocation = 0;
+
+            //(1) 필수 필드 입력 체크
             if (!startDate) missingFields.push("백테스트 시작 날짜");
             if (!endDate) missingFields.push("백테스트 종료 날짜");
             if (!initialSeed) missingFields.push("초기 시드");
             if (!monthlyInvestment) missingFields.push("매달 투자할 시드");
 
+            // (2) 비율(%) 입력값 확인 및 총합 계산
+            allocationFields.forEach(field => {
+                const value = parseFloat(field.value);
+                if (!field.value) {
+                    missingFields.push("자산 비율(%) 입력");
+                } else {
+                    totalAllocation += value;
+                }
+            });
+
+            // (3) 날짜 유효성 검사 (startDate가 endDate보다 미래일 경우)
+            if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                alert("❌ 시작 날짜는 종료 날짜보다 이전이어야 합니다!");
+                return false;  // 폼 제출 방지
+            }
+
+            // (4) 비율 총합이 100%인지 확인
+            if (totalAllocation !== 100) {
+                alert(`❌ 자산 비율 합이 100%가 아닙니다! 현재 합계: ${totalAllocation.toFixed(2)}%`);
+                return false;  // 폼 제출 방지
+            }
+
+            // (5) 필수 입력값 누락 시 경고창 표시
             if (missingFields.length > 0) {
                 alert(`다음 필드를 입력해주세요:\n\n${missingFields.join("\n")}`);
+                return false;
             } else {
                 document.getElementById("myForm").submit();
             }
+
+            // ✅ 모든 조건 통과 시 폼 제출
+            document.getElementById("myForm").submit();
         }
 
 

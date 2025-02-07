@@ -14,12 +14,14 @@ public class BacktestService {
     public Map<String, Object> runBacktest(PortfolioDto portfolioDto) {
         // 나중에 실제 계산 로직(주가 데이터 등)을 붙일 수 있음
 
+
         // 예시 결과: "총 수익률", "그래프 데이터" 등
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("totalReturn", 0.12); // 12% 수익이라고 가정
         resultMap.put("startDate", portfolioDto.getStartDate());
         resultMap.put("endDate", portfolioDto.getEndDate());
         resultMap.put("initialCapital", portfolioDto.getInitialCapital());
+        resultMap.put("monthlyInvestment", portfolioDto.getMonthlyInvestment());
         resultMap.put("assets", portfolioDto.getAllocations());
 
         // ...필요한 데이터들을 채워서 반환
