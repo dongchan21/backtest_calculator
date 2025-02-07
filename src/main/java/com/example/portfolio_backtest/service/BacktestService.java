@@ -26,7 +26,7 @@ public class BacktestService {
         return tickers.stream()
                 .collect(Collectors.toMap(
                         ticker -> ticker,
-                        ticker -> stockPriceRepository.findByTickerAndDateBetween(ticker, startDate, endDate)
+                        ticker -> stockPriceRepository.findByTickerAndDateBetweenOrderByDateAsc(ticker, startDate, endDate)
                 ));
     }
 

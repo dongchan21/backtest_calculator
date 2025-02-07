@@ -6,5 +6,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface StockPriceRepository extends JpaRepository<StockPrice, Long> {
-    List<StockPrice> findByTickerAndDateBetween(String ticker, LocalDate start, LocalDate end);
+    List<StockPrice> findByTickerAndDateBetweenOrderByDateAsc(String ticker, LocalDate start, LocalDate end);
 }
