@@ -246,21 +246,21 @@
             document.getElementById("myForm").submit();
         }
 
-        // 오늘 날짜를 YYYY-MM-DD 형식으로 가져오는 함수
-        function getTodayDate() {
+        // 오늘 날짜를 YYYY-MM 형식으로 가져오는 함수
+        function getCurrentYearMonth() {
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0'); // 월(0~11) → 1~12 변환
-            const day = String(today.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            return `${year}-${month}`;
         }
 
-        // 달력의 최대 날짜를 오늘 날짜로 설정
+        // 달력의 최대 날짜를 이번 달까지로 설정
         document.addEventListener("DOMContentLoaded", function () {
-            const today = getTodayDate();
-            document.getElementById("startDate").setAttribute("max", today);
-            document.getElementById("endDate").setAttribute("max", today);
+            const currentYearMonth = getCurrentYearMonth();
+            document.getElementById("startDate").setAttribute("max", currentYearMonth);
+            document.getElementById("endDate").setAttribute("max", currentYearMonth);
         });
+
 
 
     </script>
@@ -274,10 +274,10 @@
 
     <div>
         <label for="startDate">백테스트 시작 날짜:</label>
-        <input type="date" id="startDate" name="startDate" required max="" >
+        <input type="month" id="startDate" name="startDate" required max="">
         <br>
         <label for="endDate">백테스트 종료 날짜:</label>
-        <input type="date" id="endDate" name="endDate" required max="">
+        <input type="month" id="endDate" name="endDate" required max="">
     </div>
     <br>
 

@@ -7,7 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,12 +65,15 @@ public class BacktestController {
         portfolioDto.setAllocations(allocationsMap);
         portfolioDto.setInitialCapital(initialCapital);
         portfolioDto.setMonthlyInvestment(monthlyInvestment);
-        // 날짜 파싱(간단하게 처리)
+
+        // 날짜 파싱 (YYYY-MM 형식)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+
         if (startDate != null) {
-            portfolioDto.setStartDate(LocalDate.parse(startDate));
+            portfolioDto.setStartDate(YearMonth.parse(startDate, formatter));
         }
         if (endDate != null) {
-            portfolioDto.setEndDate(LocalDate.parse(endDate));
+            portfolioDto.setEndDate(YearMonth.parse(endDate, formatter));
         }
 
 

@@ -1,11 +1,12 @@
 package com.example.portfolio_backtest.domain;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Map;
 
 public class PortfolioDto {
     private Map<String, Double> allocations;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private YearMonth startDate;
+    private YearMonth endDate;
     private double initialCapital;
     private double monthlyInvestment;
 
@@ -17,17 +18,17 @@ public class PortfolioDto {
         this.allocations = allocations;
     }
 
-    public LocalDate getStartDate() {
+    public YearMonth getStartDate() {
         return startDate;
     }
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(YearMonth startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public YearMonth getEndDate() {
         return endDate;
     }
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(YearMonth endDate) {
         this.endDate = endDate;
     }
 
