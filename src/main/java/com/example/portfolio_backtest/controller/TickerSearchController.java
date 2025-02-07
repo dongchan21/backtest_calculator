@@ -17,6 +17,11 @@ public class TickerSearchController {
         this.tickerService = tickerService;
     }
 
+    @GetMapping("/exists")
+    public boolean checkIfExists(@RequestParam String symbol) {
+        return tickerService.existsByTicker(symbol);
+    }
+
     @GetMapping
     public List<TickerDto> search(@RequestParam String query) {
         // DB에서 해당 query로 검색

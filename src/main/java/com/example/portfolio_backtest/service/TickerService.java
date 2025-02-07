@@ -18,4 +18,10 @@ public class TickerService {
     public List<TickerEntity> search(String query) {
         return tickerRepository.findByTickerContainingIgnoreCaseOrNameContainingIgnoreCase(query, query);
     }
+
+    // ✅ 개별 주식 존재 여부 확인 기능 추가
+    public boolean existsByTicker(String ticker) {
+        return tickerRepository.existsByTickerIgnoreCase(ticker);
+    }
+
 }

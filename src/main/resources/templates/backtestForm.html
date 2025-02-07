@@ -144,7 +144,23 @@
         /* ==========================
        폼 유효성 검사 로직
      ========================== */
-        function validateForm(event) {
+        async function checkStockExists(stockSymbol) {
+            try {
+                // ✅ 기존 TickerSearchController의 `/api/tickers/exists` API 활용
+                const response = await fetch(`/api/tickers/exists?symbol=${stockSymbol}`);
+                if (!response.ok) throw new Error("네트워크 오류");
+
+                const exists = await response.json();
+                return exists;  // `true`면 존재, `false`면 존재하지 않음
+            } catch (error) {
+                console.error(`❌ 주식 검증 실패: ${stockSymbol}`, error);
+                return false;
+            }
+        }
+
+
+
+        async function validateForm(event) {
             event.preventDefault(); // 기본 제출 동작 방지
 
             const missingFields = [];
@@ -152,9 +168,11 @@
             const endDate = document.getElementById("endDate").value.trim();
             const initialSeed = document.getElementById("initial-seed").value.trim();
             const monthlyInvestment = document.getElementById("monthly-investment").value.trim();
+            const assetFields = document.querySelectorAll("input[name='assets']");
             const allocationFields = document.querySelectorAll("input[name='allocations']");
 
             let totalAllocation = 0;
+            let invalidStocks = []; // 유효하지 않은 주식을 저장할 배열
 
             //(1) 필수 필드 입력 체크
             if (!startDate) missingFields.push("백테스트 시작 날짜");
@@ -162,7 +180,17 @@
             if (!initialSeed) missingFields.push("초기 시드");
             if (!monthlyInvestment) missingFields.push("매달 투자할 시드");
 
-            // (2) 비율(%) 입력값 확인 및 총합 계산
+            // (2) 🚀 초기 시드 및 매달 투자 금액이 0 미만인지 검사
+            if (initialSeed < 0) {
+                alert("❌ 초기 시드는 0 이상이어야 합니다!");
+                return false; // 폼 제출 방지
+            }
+            if (monthlyInvestment < 0) {
+                alert("❌ 매달 투자 금액은 0 이상이어야 합니다!");
+                return false; // 폼 제출 방지
+            }
+
+            // (3) 비율(%) 입력값 확인 및 총합 계산
             allocationFields.forEach(field => {
                 const value = parseFloat(field.value);
                 if (!field.value) {
@@ -172,19 +200,41 @@
                 }
             });
 
-            // (3) 날짜 유효성 검사 (startDate가 endDate보다 미래일 경우)
+            // (4) 날짜 유효성 검사 (startDate가 endDate보다 미래일 경우)
             if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
                 alert("❌ 시작 날짜는 종료 날짜보다 이전이어야 합니다!");
                 return false;  // 폼 제출 방지
             }
 
-            // (4) 비율 총합이 100%인지 확인
+            // (5) 비율 총합이 100%인지 확인
             if (totalAllocation !== 100) {
                 alert(`❌ 자산 비율 합이 100%가 아닙니다! 현재 합계: ${totalAllocation.toFixed(2)}%`);
                 return false;  // 폼 제출 방지
             }
 
-            // (5) 필수 입력값 누락 시 경고창 표시
+
+            // (6) 입력된 모든 주식이 데이터베이스에 존재하는지 확인
+            for (let asset of assetFields) {
+                const stockSymbol = asset.value.trim().split(" (")[1]?.replace(")", ""); // "Tesla Inc. (TSLA)" → "TSLA"
+
+                if (!stockSymbol) {
+                    invalidStocks.push(asset.value.trim());
+                    continue;
+                }
+
+                const isValid = await checkStockExists(stockSymbol);
+                if (!isValid) {
+                    invalidStocks.push(stockSymbol);
+                }
+            }
+
+            // (7) 존재하지 않는 주식이 있다면 경고창 띄우기
+            if (invalidStocks.length > 0) {
+                alert(`❌ 다음 주식은 존재하지 않습니다:\n\n${invalidStocks.join(", ")}`);
+                return false;
+            }
+
+            // 필수 입력값 누락 시 경고창 표시
             if (missingFields.length > 0) {
                 alert(`다음 필드를 입력해주세요:\n\n${missingFields.join("\n")}`);
                 return false;
@@ -258,7 +308,7 @@
     <div>
         <label for="initial-seed">초기 시드:</label><br>
         <div class="input-container">
-            <input type="number" id="initial-seed" name="initialSeed" required />
+            <input type="number" id="initial-seed" name="initialSeed" required min="0" />
             <span class="unit">원</span>
         </div>
     </div>
@@ -267,7 +317,7 @@
     <div>
         <label for="monthly-investment">매달 투자할 시드:</label><br>
         <div class="input-container">
-            <input type="number" id="monthly-investment" name="monthlyInvestment" required />
+            <input type="number" id="monthly-investment" name="monthlyInvestment" required min="0" />
             <span class="unit">원</span>
         </div>
     </div>
