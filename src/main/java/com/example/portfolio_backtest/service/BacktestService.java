@@ -55,6 +55,25 @@ public class BacktestService {
         return convertedData;
     }
 
+    // 기존 메서드에 추가된 필터링 로직
+    public Map<String, List<StockPrice>> filterStockDataAfterLatestIPO(Map<String, List<StockPrice>> stockData) {
+        // 가장 늦은 시작 날짜 계산
+        LocalDate latestIPODate = stockData.values().stream()
+                .filter(prices -> !prices.isEmpty())
+                .map(prices -> prices.get(0).getDate()) // 각 주식 데이터의 첫 번째 날짜
+                .max(LocalDate::compareTo)             // 가장 늦은 날짜 찾기
+                .orElseThrow(() -> new IllegalStateException("No stock data available"));
+
+        // 각 주식 데이터에서 기준 날짜 이후 데이터만 필터링
+        return stockData.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .filter(price -> !price.getDate().isBefore(latestIPODate)) // 기준 날짜 이후만 필터
+                                .collect(Collectors.toList())
+                ));
+    }
+
     public Map<String, Object> runBacktest(PortfolioDto portfolioDto) {
         // 나중에 실제 계산 로직(주가 데이터 등)을 붙일 수 있음
 

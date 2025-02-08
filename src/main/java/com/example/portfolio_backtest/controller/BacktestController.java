@@ -109,6 +109,11 @@ public class BacktestController {
         model.addAttribute("assets", tickers);
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);
+        // 상장일 기준으로 필터링
+        Map<String, List<StockPrice>> filteredStockData = backtestService.filterStockDataAfterLatestIPO(stockData);
+
+        // 모델에 필터링된 데이터 추가
+        model.addAttribute("stockData", filteredStockData);
 
         // 2) 백테스트 서비스 로직 호출
         Map<String, Object> result = backtestService.runBacktest(portfolioDto);
