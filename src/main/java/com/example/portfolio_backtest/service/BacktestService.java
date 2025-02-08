@@ -6,9 +6,7 @@ import com.example.portfolio_backtest.repository.StockPriceRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,12 +20,39 @@ public class BacktestService {
         this.stockPriceRepository = stockPriceRepository;
     }
 
-    public Map<String, List<StockPrice>> getStockData(List<String> tickers, LocalDate startDate, LocalDate endDate) {
+    public Map<String, List<StockPrice>> getStockDataWithKRW(List<String> tickers, LocalDate startDate, LocalDate endDate) {
         return tickers.stream()
                 .collect(Collectors.toMap(
                         ticker -> ticker,
                         ticker -> stockPriceRepository.findByTickerAndDateBetweenOrderByDateAsc(ticker, startDate, endDate)
                 ));
+    }
+
+    public Map<String, List<StockPrice>> convertToKRW(Map<String, List<StockPrice>> stockData) {
+        List<StockPrice> krwExchangeRates = stockData.getOrDefault("KRW=X", Collections.emptyList());
+
+        Map<String, List<StockPrice>> convertedData = new HashMap<>();
+
+        for (Map.Entry<String, List<StockPrice>> entry : stockData.entrySet()) {
+            if (entry.getKey().equals("KRW=X")) continue;
+
+            List<StockPrice> pricesInKRW = new ArrayList<>();
+
+            for (StockPrice price : entry.getValue()) {
+                Optional<StockPrice> exchangeRateOpt = krwExchangeRates.stream()
+                        .filter(krw -> krw.getDate().equals(price.getDate()))
+                        .findFirst();
+
+                if (exchangeRateOpt.isPresent()) {
+                    double krwPrice = price.getClosePrice() * exchangeRateOpt.get().getClosePrice();
+                    price.setKrwPrice(krwPrice);
+                }
+                pricesInKRW.add(price);
+            }
+
+            convertedData.put(entry.getKey(), pricesInKRW);
+        }
+        return convertedData;
     }
 
     public Map<String, Object> runBacktest(PortfolioDto portfolioDto) {

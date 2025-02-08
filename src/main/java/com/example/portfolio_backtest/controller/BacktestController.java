@@ -52,10 +52,6 @@ public class BacktestController {
             @RequestParam("monthlyInvestment") Double monthlyInvestment,
             Model model) {
 
-        // 로그 추가 (디버깅용)
-        System.out.println("Received assets: " + assets);
-        System.out.println("Received allocations: " + allocations);
-
 
         //assets, allocations Map으로 변환
         Map<String, Double> allocationsMap = new HashMap<>();
@@ -83,7 +79,8 @@ public class BacktestController {
 
         // ✅ 1. 주식명에서 티커(symbol)만 추출
         List<String> tickers = extractTickers(assets);
-        System.out.println("Extracted Tickers: " + tickers);  // 디버깅용 출력
+        System.out.println("Extracted Tickers: " + tickers);
+        tickers.add("KRW=X"); // 환율 티커 추가
 
 
         //Python 서버로 날짜 넘겨주기
@@ -101,10 +98,14 @@ public class BacktestController {
 
         restTemplate.postForObject(pythonApiUrl, requestBody, String.class);
 
-        // 📌 Python에서 저장된 데이터 가져오기
-        Map<String, List<StockPrice>> stockData = backtestService.getStockData(tickers, start, end);
+        // ✅ 주가 및 환율 데이터 가져오기
+        Map<String, List<StockPrice>> stockData = backtestService.getStockDataWithKRW(tickers, start, end);
+
+        // ✅ 원화 주가 계산
+        Map<String, List<StockPrice>> stockDataInKRW = backtestService.convertToKRW(stockData);
 
         model.addAttribute("stockData", stockData);
+        model.addAttribute("stockDataInKRW", stockDataInKRW);
         model.addAttribute("assets", tickers);
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);

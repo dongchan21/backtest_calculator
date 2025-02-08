@@ -12,7 +12,12 @@ public class StockPrice {
 
     private String ticker;
     private LocalDate date;
+
+    @Column(name = "close_price")  // ✅ 테이블 컬럼명과 매칭
     private Double closePrice;
+
+    @Column(name = "krw_price", nullable = true)  // ✅ 원화 주가 추가
+    private Double krwPrice;
 
     // Getter & Setter
 
@@ -46,5 +51,13 @@ public class StockPrice {
 
     public void setClosePrice(Double closePrice) {
         this.closePrice = closePrice;
+    }
+
+    public Double getKrwPrice() {
+        return krwPrice;
+    }
+
+    public void setKrwPrice(Double krwPrice) {
+        this.krwPrice = krwPrice;
     }
 }

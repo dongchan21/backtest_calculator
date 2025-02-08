@@ -17,17 +17,22 @@
 </div>
 
 <div th:each="entry : ${stockData}">
-    <h2 th:text="${entry.key}"></h2> <!-- 주식 티커 -->
-    <table border="1">
-        <tr>
-            <th>날짜</th>
-            <th>주가</th>
-        </tr>
-        <tr th:each="data : ${entry.value}">
-            <td th:text="${data.date}"></td>
-            <td th:text="${data.closePrice}"></td>
-        </tr>
-    </table>
+    <!-- KRW=X 제외 -->
+    <div th:if="${entry.key != 'KRW=X'}">
+        <h2 th:text="${entry.key}"></h2> <!-- 주식 티커 -->
+        <table border="1">
+            <tr>
+                <th>날짜</th>
+                <th>주가(달러)</th>
+                <th>주가(원)</th>
+            </tr>
+            <tr th:each="data : ${entry.value}">
+                <td th:text="${data.date}"></td>
+                <td th:text="${#numbers.formatDecimal(data.closePrice, 2, 2)}"></td>
+                <td th:text="${#numbers.formatDecimal(data.krwPrice, 0, 0)}"></td>
+            </tr>
+        </table>
+    </div>
 </div>
 
 <div th:if="${result == null}">
