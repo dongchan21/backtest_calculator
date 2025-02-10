@@ -6,6 +6,7 @@ import com.example.portfolio_backtest.repository.StockPriceRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,6 +56,73 @@ public class BacktestService {
         return convertedData;
     }
 
+    // ✅ 월별 시드 계산 로직
+    public List<Map<String, Object>> calculateMonthlySeed(PortfolioDto portfolioDto, Map<String, List<StockPrice>> stockDataInKRW) {
+
+        List<Map<String, Object>> monthlyResults = new ArrayList<>();
+        double currentSeed = portfolioDto.getInitialCapital(); // 초기 시드
+
+        for (YearMonth date = portfolioDto.getStartDate(); !date.isAfter(portfolioDto.getEndDate()); date = date.plusMonths(1)) {
+            double monthlyReturn = 0.0; // 월별 수익률
+
+            for (Map.Entry<String, List<StockPrice>> entry : stockDataInKRW.entrySet()) {
+                String ticker = entry.getKey();
+                List<StockPrice> stockPrices = entry.getValue();
+
+                YearMonth finalDate = date;
+
+                // 이번 달 주가 데이터 찾기
+                Optional<StockPrice> currentPriceOpt = stockPrices.stream()
+                        .filter(price -> YearMonth.from(price.getDate()).equals(finalDate))
+                        .findFirst();
+
+                // 지난달 주가 데이터 찾기
+                YearMonth prevDate = finalDate.minusMonths(1);
+                Optional<StockPrice> prevPriceOpt = stockPrices.stream()
+                        .filter(price -> YearMonth.from(price.getDate()).equals(prevDate))
+                        .findFirst();
+
+                // 지난달, 이번 달 주가가 존재하면 수익률 계산
+                if (currentPriceOpt.isPresent() && prevPriceOpt.isPresent()) {
+                    double currentPrice = currentPriceOpt.get().getKrwPrice();
+                    double prevPrice = prevPriceOpt.get().getKrwPrice();
+
+
+                    // 수익률 계산 (이번 달 주가 대비 지난달 대비 상승률)
+                    double returnRate = (currentPrice - prevPrice) / prevPrice;
+
+                    // 비율 가져오기
+                    double allocation = portfolioDto.getAllocations().entrySet().stream()
+                            .filter(e -> extractTicker(e.getKey()).equals(ticker))
+                            .map(Map.Entry::getValue)
+                            .findFirst()
+                            .orElse(0.0);
+                    // 각 종목별 수익률 반영
+                    monthlyReturn += returnRate * allocation /100;
+                    System.out.println("monthlyReturn = " + monthlyReturn);
+                }
+            }
+
+            // 💰 투자 수익 반영
+            currentSeed += currentSeed * monthlyReturn;
+            System.out.println("currentSeed = " + currentSeed);
+            currentSeed += portfolioDto.getMonthlyInvestment(); // 월 납입금 추가
+            System.out.println("currentSeed after monthly investment = " + currentSeed);
+
+            // 결과 저장
+            Map<String, Object> result = new HashMap<>();
+            result.put("date", date);
+            result.put("seed", (long) currentSeed);
+            System.out.println("result = " + result);
+            monthlyResults.add(result);
+
+
+        }
+
+        return monthlyResults;
+    }
+
+
     // 기존 메서드에 추가된 필터링 로직
     public Map<String, List<StockPrice>> filterStockDataAfterLatestIPO(Map<String, List<StockPrice>> stockData) {
         // 가장 늦은 시작 날짜 계산
@@ -72,6 +140,10 @@ public class BacktestService {
                                 .filter(price -> !price.getDate().isBefore(latestIPODate)) // 기준 날짜 이후만 필터
                                 .collect(Collectors.toList())
                 ));
+    }
+
+    private String extractTicker(String stockName) {
+        return stockName.replaceAll(".*\\((.*?)\\)", "$1"); // 괄호 안의 ticker 추출
     }
 
     public Map<String, Object> runBacktest(PortfolioDto portfolioDto) {

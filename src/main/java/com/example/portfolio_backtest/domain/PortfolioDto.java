@@ -14,6 +14,7 @@ public class PortfolioDto {
     public Map<String, Double> getAllocations() {
         return allocations;
     }
+
     public void setAllocations(Map<String, Double> allocations) {
         this.allocations = allocations;
     }

@@ -19,8 +19,6 @@ public class StockPrice {
     @Column(name = "krw_price", nullable = true)  // ✅ 원화 주가 추가
     private Double krwPrice;
 
-    // Getter & Setter
-
     public Long getId() {
         return id;
     }
@@ -59,5 +57,15 @@ public class StockPrice {
 
     public void setKrwPrice(Double krwPrice) {
         this.krwPrice = krwPrice;
+    }
+
+    @Override
+    public String toString() {
+        return "StockPrice{" +
+                "ticker='" + ticker + '\'' +
+                ", date=" + date +
+                ", closePrice=" + closePrice +
+                ", krwPrice=" + krwPrice +
+                '}';
     }
 }

@@ -14,6 +14,7 @@
     <p>초기 자본: <span th:text="${result.initialCapital}">-</span></p>'
     <p>월 납입금: <span th:text="${result.monthlyInvestment}">-</span></p>'
     <p>투자 종목: <span th:text="${result.assets}">-</span></p>-
+
 </div>
 
 <div th:each="entry : ${stockData}">
@@ -25,15 +26,33 @@
                 <th>날짜</th>
                 <th>주가(달러)</th>
                 <th>주가(원)</th>
+
             </tr>
             <tr th:each="data : ${entry.value}">
                 <td th:text="${data.date}"></td>
                 <td th:text="${#numbers.formatDecimal(data.closePrice, 2, 2)}"></td>
                 <td th:text="${#numbers.formatDecimal(data.krwPrice, 0, 0)}"></td>
+
             </tr>
         </table>
     </div>
 </div>
+
+<h2>월별 시드 결과</h2>
+<table border="1">
+    <thead>
+    <tr>
+        <th>날짜</th>
+        <th>누적 시드 (KRW)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${monthlySeedResults}">
+        <td th:text="${entry.get('date')}"></td>
+        <td th:text="${entry.get('seed')}"></td>
+    </tr>
+    </tbody>
+</table>
 
 <div th:if="${result == null}">
     <p>No result data found.</p>

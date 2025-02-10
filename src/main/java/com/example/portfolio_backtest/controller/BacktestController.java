@@ -109,6 +109,8 @@ public class BacktestController {
         model.addAttribute("assets", tickers);
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);
+        model.addAttribute("allocationsMap", allocationsMap);
+
         // 상장일 기준으로 필터링
         Map<String, List<StockPrice>> filteredStockData = backtestService.filterStockDataAfterLatestIPO(stockData);
 
@@ -118,9 +120,17 @@ public class BacktestController {
         // 2) 백테스트 서비스 로직 호출
         Map<String, Object> result = backtestService.runBacktest(portfolioDto);
 
+        // 💡 allocationsMap을 모델에 추가
+        model.addAttribute("allocations", allocationsMap);
+
+        // ✅ 월별 시드 계산
+        List<Map<String, Object>> monthlySeedResults = backtestService.calculateMonthlySeed(portfolioDto, stockDataInKRW);
+
+        // 모델에 추가
+        model.addAttribute("monthlySeedResults", monthlySeedResults);
+
         // 3) 결과를 모델에 담아서 뷰로 전달
         model.addAttribute("result", result);
-
 
         // templates/backtestResult.html 로 이동
         return "backtestResult";
