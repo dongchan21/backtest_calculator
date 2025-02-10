@@ -107,12 +107,12 @@ public class BacktestService {
             currentSeed += currentSeed * monthlyReturn;
             System.out.println("currentSeed = " + currentSeed);
             currentSeed += portfolioDto.getMonthlyInvestment(); // 월 납입금 추가
-            System.out.println("currentSeed after monthly investment = " + currentSeed);
 
             // 결과 저장
             Map<String, Object> result = new HashMap<>();
             result.put("date", date);
-            result.put("seed", (long) currentSeed);
+            result.put("seed", (double) currentSeed);
+            System.out.println("Seed Type: " + result.get("seed").getClass().getSimpleName());
             System.out.println("result = " + result);
             monthlyResults.add(result);
 
