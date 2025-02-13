@@ -26,11 +26,15 @@
     <p>연평균 성장률:
         <span th:text="${#numbers.formatDecimal(cagr, 2, 2)} + '%'">0.00%</span>
     </p>
-    <p>백테스트 시작: <span th:text="${result.startDate}">-</span></p>
+    <p>백테스트 시작: <span th:text="${monthlySeedResults[0].get('date')}">-</span></p>
     <p>백테스트 종료: <span th:text="${result.endDate}">-</span></p>
-    <p>초기 자본: <span th:text="${result.initialCapital}">-</span></p>
-    <p>월 납입금: <span th:text="${result.monthlyInvestment}">-</span></p>
-    <p>투자 종목: <span th:text="${result.assets}">-</span></p>
+    <p>초기 자본:
+        <span th:text="${result.initialCapital == 0 ? '0원' : #numbers.formatInteger(result.initialCapital, 0, 'COMMA') + '원'}">-</span>
+    </p>
+
+    <p>월 납입금:
+        <span th:text="${result.monthlyInvestment == 0 ? '0원' : #numbers.formatInteger(result.monthlyInvestment, 0, 'COMMA') + '원'}">-</span>
+    </p>    </p>    <p>투자 종목: <span th:text="${result.assets}">-</span></p>
 </div>
 
 <h2>투자 원금 vs. 수익금</h2>
@@ -80,15 +84,15 @@
     <tbody>
     <tr th:each="entry : ${monthlySeedResults}">
         <td th:text="${entry.get('date')}"></td>
-        <td th:text="${#numbers.formatInteger(entry.get('seed'), 3, 'COMMA')}"></td>
-        <td th:text="${entry.get('cumulativeDividends') == 0 ? '0' : #numbers.formatInteger(entry.get('cumulativeDividends'), 3, 'COMMA')}"></td>
-        <td th:text="${#numbers.formatInteger(entry.get('totalInvestment'), 3, 'COMMA')}"></td>  <!-- ✅ 투자 원금 -->
+        <td th:text="${entry.get('seed') == 0 ? '0' : #numbers.formatInteger(entry.get('seed'), 0, 'COMMA')}"></td>
+        <td th:text="${entry.get('cumulativeDividends') == 0 ? '0' : #numbers.formatInteger(entry.get('cumulativeDividends'), 0, 'COMMA')}"></td>
+        <td th:text="${entry.get('totalInvestment') == 0 ? '0' : #numbers.formatInteger(entry.get('totalInvestment'), 0, 'COMMA')}"></td>
         <!-- ✅ 투자 수익 계산 -->
         <td>
             <span th:class="|${entry.get('investmentReturn') > 0 ? 'profit-positive' :
                      (entry.get('investmentReturn') < 0 ? 'profit-negative' : 'neutral')}|"
-                    th:text="|${entry.get('investmentReturn') == 0 ? '0' :
-                    (entry.get('investmentReturn') > 0 ? '+' : '') + #numbers.formatInteger(entry.get('investmentReturn'), 3, 'COMMA')}
+                  th:text="|${entry.get('investmentReturn') == 0 ? '0' :
+                    (entry.get('investmentReturn') > 0 ? '+' : '') + #numbers.formatInteger(entry.get('investmentReturn'), 0, 'COMMA')}
                     (${entry.get('returnRatePercentage') == 0 ? '0%' :
                     (entry.get('returnRatePercentage') > 0 ?
                     #numbers.formatDecimal(entry.get('returnRatePercentage'), 2, 2).replaceFirst('^0', '') + '%' :
