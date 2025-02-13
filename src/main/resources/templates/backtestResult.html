@@ -32,7 +32,6 @@
                 <td th:text="${data.date}"></td>
                 <td th:text="${#numbers.formatDecimal(data.closePrice, 2, 2)}"></td>
                 <td th:text="${#numbers.formatInteger(data.krwPrice, 3, 'COMMA')}"></td>
-
             </tr>
         </table>
     </div>
@@ -51,6 +50,7 @@
     <tr th:each="entry : ${monthlySeedResults}">
         <td th:text="${entry.get('date')}"></td>
         <td th:text="${#numbers.formatInteger(entry.get('seed'), 3, 'COMMA')}"></td>
+        <td th:text="${entry.get('cumulativeDividends') == 0 ? '0' : #numbers.formatInteger(entry.get('cumulativeDividends'), 3, 'COMMA')}"></td>
     </tr>
     </tbody>
 </table>

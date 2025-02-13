@@ -61,9 +61,23 @@ public class BacktestService {
 
         List<Map<String, Object>> monthlyResults = new ArrayList<>();
         double currentSeed = portfolioDto.getInitialCapital(); // 초기 시드
+        double cumulativeDividends = 0.0; // 누적 배당금
 
-        for (YearMonth date = portfolioDto.getStartDate(); !date.isAfter(portfolioDto.getEndDate()); date = date.plusMonths(1)) {
+        // ✅ 최신 상장 주식 이후 데이터만 필터링
+        Map<String, List<StockPrice>> filteredStockData = filterStockDataAfterLatestIPO(stockDataInKRW);
+
+        // ✅ 가장 늦게 상장된 주식의 상장일 찾기
+        LocalDate latestIPODate = filteredStockData.values().stream()
+                .filter(prices -> !prices.isEmpty())
+                .map(prices -> prices.get(0).getDate()) // 각 주식 데이터의 첫 번째 날짜
+                .max(LocalDate::compareTo) // 가장 늦게 상장된 날짜 찾기
+                .orElse(portfolioDto.getStartDate().atDay(1)); // 기본값: 시작일
+
+        System.out.println("🔹 Latest IPO Date: " + latestIPODate);
+
+        for (YearMonth date = YearMonth.from(latestIPODate); !date.isAfter(portfolioDto.getEndDate()); date = date.plusMonths(1)) {
             double monthlyReturn = 0.0; // 월별 수익률
+            double monthlyDividend = 0.0;
 
             for (Map.Entry<String, List<StockPrice>> entry : stockDataInKRW.entrySet()) {
                 String ticker = entry.getKey();
@@ -91,12 +105,24 @@ public class BacktestService {
                     // 수익률 계산 (이번 달 주가 대비 지난달 대비 상승률)
                     double returnRate = (currentPrice - prevPrice) / prevPrice;
 
+
+                    // ✅ 보유 주식 개수 = 원화 시드 / 원화 주가
+
                     // 비율 가져오기
                     double allocation = portfolioDto.getAllocations().entrySet().stream()
                             .filter(e -> extractTicker(e.getKey()).equals(ticker))
                             .map(Map.Entry::getValue)
                             .findFirst()
                             .orElse(0.0);
+                    System.out.println("allocation : " + allocation);
+
+                    double allocatedSeed = (currentSeed * allocation) / 100;
+                    double sharesOwned = allocatedSeed / currentPrice;
+
+                    // ✅ 배당금 계산 (보유 주식 개수 × 1주당 배당금)
+                    double dividendsKrw = currentPriceOpt.get().getDividendsKrw();
+                    monthlyDividend += sharesOwned * dividendsKrw;
+
                     // 각 종목별 수익률 반영
                     monthlyReturn += returnRate * allocation /100;
                     System.out.println("monthlyReturn = " + monthlyReturn);
@@ -107,11 +133,14 @@ public class BacktestService {
             currentSeed += currentSeed * monthlyReturn;
             System.out.println("currentSeed = " + currentSeed);
             currentSeed += portfolioDto.getMonthlyInvestment(); // 월 납입금 추가
+            cumulativeDividends += monthlyDividend;
+            currentSeed += monthlyDividend; // 배당금도 다시 투자됨
 
             // 결과 저장
             Map<String, Object> result = new HashMap<>();
             result.put("date", date);
             result.put("seed", (double) currentSeed);
+            result.put("cumulativeDividends", cumulativeDividends);
             System.out.println("Seed Type: " + result.get("seed").getClass().getSimpleName());
             System.out.println("result = " + result);
             monthlyResults.add(result);

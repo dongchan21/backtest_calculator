@@ -9,7 +9,6 @@ public class PortfolioDto {
     private YearMonth endDate;
     private double initialCapital;
     private double monthlyInvestment;
-
     // Getter/Setter
     public Map<String, Double> getAllocations() {
         return allocations;

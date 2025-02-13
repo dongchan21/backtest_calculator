@@ -19,6 +19,10 @@ public class StockPrice {
     @Column(name = "krw_price", nullable = true)  // ✅ 원화 주가 추가
     private Double krwPrice;
 
+    @Column(name = "dividends_krw")
+    private double dividendsKrw; // 원화 배당금
+
+
     public Long getId() {
         return id;
     }
@@ -58,6 +62,15 @@ public class StockPrice {
     public void setKrwPrice(Double krwPrice) {
         this.krwPrice = krwPrice;
     }
+
+    public double getDividendsKrw() {
+        return dividendsKrw;
+    }
+
+    public void setDividendsKrw(double dividendsKrw) {
+        this.dividendsKrw = dividendsKrw;
+    }
+
 
     @Override
     public String toString() {
