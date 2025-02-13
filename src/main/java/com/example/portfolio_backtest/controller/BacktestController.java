@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.YearMonth;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,9 +126,27 @@ public class BacktestController {
 
         // ✅ 월별 시드 계산
         List<Map<String, Object>> monthlySeedResults = backtestService.calculateMonthlySeed(portfolioDto, stockDataInKRW);
-
         // 모델에 추가
         model.addAttribute("monthlySeedResults", monthlySeedResults);
+
+        // ✅ 투자 원금, 수익금 데이터 생성 (그래프 용)
+        List<Double> principalAmounts = new ArrayList<>();
+        List<Double> totalSeeds = new ArrayList<>(); // ✅ 누적 시드 (Seed) 저장
+        List<String> months = new ArrayList<>();
+
+        for (Map<String, Object> entry : monthlySeedResults) {
+            double seed = (double) entry.get("seed");  // 누적 시드 (Seed)
+            double principal = (double) entry.get("principal");
+
+            principalAmounts.add(principal);
+            months.add(entry.get("date").toString());
+            totalSeeds.add(seed);  // ✅ 누적 시드 값 저장
+        }
+
+
+        model.addAttribute("months", months);
+        model.addAttribute("principalAmounts", principalAmounts);
+        model.addAttribute("totalSeeds", totalSeeds);
 
         // 3) 결과를 모델에 담아서 뷰로 전달
         model.addAttribute("result", result);

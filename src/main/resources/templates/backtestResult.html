@@ -23,7 +23,7 @@
               th:if="${iterStat.last}"
               th:text="${#numbers.formatDecimal(entry.get('returnRatePercentage'), 2, 2)} + '%'">0.00%</span>
     </p>
-    <p>연평균 수익률 (CAGR):
+    <p>연평균 성장률:
         <span th:text="${#numbers.formatDecimal(cagr, 2, 2)} + '%'">0.00%</span>
     </p>
     <p>백테스트 시작: <span th:text="${result.startDate}">-</span></p>
@@ -32,6 +32,38 @@
     <p>월 납입금: <span th:text="${result.monthlyInvestment}">-</span></p>
     <p>투자 종목: <span th:text="${result.assets}">-</span></p>
 </div>
+
+<h2>투자 원금 vs. 수익금</h2>
+<canvas id="investmentChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    var months = /*[[${months}]]*/ [];
+    var principalAmounts = /*[[${principalAmounts}]]*/ [];
+    var totalSeeds = /*[[${totalSeeds}]]*/ [];
+
+    var ctx = document.getElementById('investmentChart').getContext('2d');
+    var investmentChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: '투자 원금',
+                    data: principalAmounts,
+                    borderColor: 'blue',
+                    fill: true
+                },
+                {
+                    label: '총시드',
+                    data: totalSeeds,
+                    borderColor: 'red',
+                    fill: true
+                }
+            ]
+        }
+    });
+</script>
 
 <!-- 📌 월별 시드 결과 (항상 표시) -->
 <h2>월별 시드 결과</h2>
