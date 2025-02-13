@@ -74,13 +74,14 @@
         <label class="asset-label">자산 ${assetCount} 종목:</label>  <!-- ✅ 여기에 class 추가 -->
         <div class="autocomplete-container">
             <input type="text" name="assets" required
+                placeholder="예) SPY 또는 S&P500"
                 oninput="onTickerInput(this, '${newListId}')"
             />
             <div id="${newListId}" class="autocomplete-list" style="display:none;"></div>
         </div>
 
         <label>비율(%):</label>
-        <input type="number" name="allocations" required />
+        <input type="number" name="allocations" required placeholder="최대 100"/>
 
         <!-- ✅ X 버튼 추가 -->
         <button type="button" class="delete-btn" onclick="removeAssetField('${assetId}')">X</button>
