@@ -3,6 +3,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Backtest Result</title>
+    <script>
+        function toggleStockData() {
+            var stockSection = document.getElementById("stockDataSection");
+            if (stockSection.style.display === "none") {
+                stockSection.style.display = "block";
+            } else {
+                stockSection.style.display = "none";
+            }
+        }
+    </script>
 </head>
 <body>
 <h1>Backtest Result</h1>
@@ -11,32 +21,12 @@
     <p>Total Return: <span th:text="${result.totalReturn}">0.00</span></p>
     <p>백테스트 시작: <span th:text="${result.startDate}">-</span></p>
     <p>백테스트 종료: <span th:text="${result.endDate}">-</span></p>
-    <p>초기 자본: <span th:text="${result.initialCapital}">-</span></p>'
-    <p>월 납입금: <span th:text="${result.monthlyInvestment}">-</span></p>'
-    <p>투자 종목: <span th:text="${result.assets}">-</span></p>-
-
+    <p>초기 자본: <span th:text="${result.initialCapital}">-</span></p>
+    <p>월 납입금: <span th:text="${result.monthlyInvestment}">-</span></p>
+    <p>투자 종목: <span th:text="${result.assets}">-</span></p>
 </div>
 
-<div th:each="entry : ${stockData}">
-    <!-- KRW=X 제외 -->
-    <div th:if="${entry.key != 'KRW=X'}">
-        <h2 th:text="${entry.key}"></h2> <!-- 주식 티커 -->
-        <table border="1">
-            <tr>
-                <th>날짜</th>
-                <th>주가(달러)</th>
-                <th>주가(원)</th>
-
-            </tr>
-            <tr th:each="data : ${entry.value}">
-                <td th:text="${data.date}"></td>
-                <td th:text="${#numbers.formatDecimal(data.closePrice, 2, 2)}"></td>
-                <td th:text="${#numbers.formatInteger(data.krwPrice, 3, 'COMMA')}"></td>
-            </tr>
-        </table>
-    </div>
-</div>
-
+<!-- 📌 월별 시드 결과 (항상 표시) -->
 <h2>월별 시드 결과</h2>
 <table border="1">
     <thead>
@@ -55,10 +45,37 @@
     </tbody>
 </table>
 
+<!-- 📌 토글 버튼 -->
+<button onclick="toggleStockData()">📉 주가 데이터 보기</button>
+
+<!-- 📌 주가 데이터 (기본적으로 숨김) -->
+<div id="stockDataSection" style="display: none;">
+    <h2>주가 데이터</h2>
+    <div th:each="entry : ${stockData}">
+        <!-- KRW=X 제외 -->
+        <div th:if="${entry.key != 'KRW=X'}">
+            <h3 th:text="${entry.key}"></h3> <!-- 주식 티커 -->
+            <table border="1">
+                <tr>
+                    <th>날짜</th>
+                    <th>주가(달러)</th>
+                    <th>주가(원)</th>
+                </tr>
+                <tr th:each="data : ${entry.value}">
+                    <td th:text="${data.date}"></td>
+                    <td th:text="${#numbers.formatDecimal(data.closePrice, 2, 2)}"></td>
+                    <td th:text="${#numbers.formatInteger(data.krwPrice, 3, 'COMMA')}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
 <div th:if="${result == null}">
     <p>No result data found.</p>
 </div>
 
+<br>
 <a href="/backtest/form">Go Back</a>
 
 </body>
