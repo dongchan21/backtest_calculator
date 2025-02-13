@@ -18,7 +18,14 @@
 <h1>Backtest Result</h1>
 
 <div th:if="${result != null}">
-    <p>Total Return: <span th:text="${result.totalReturn}">0.00</span></p>
+    <p>총 수익률:
+        <span th:each="entry, iterStat : ${monthlySeedResults}"
+              th:if="${iterStat.last}"
+              th:text="${#numbers.formatDecimal(entry.get('returnRatePercentage'), 2, 2)} + '%'">0.00%</span>
+    </p>
+    <p>연평균 수익률 (CAGR):
+        <span th:text="${#numbers.formatDecimal(cagr, 2, 2)} + '%'">0.00%</span>
+    </p>
     <p>백테스트 시작: <span th:text="${result.startDate}">-</span></p>
     <p>백테스트 종료: <span th:text="${result.endDate}">-</span></p>
     <p>초기 자본: <span th:text="${result.initialCapital}">-</span></p>

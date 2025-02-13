@@ -132,6 +132,10 @@ public class BacktestController {
         // 3) 결과를 모델에 담아서 뷰로 전달
         model.addAttribute("result", result);
 
+        // ✅ CAGR 계산
+        double cagr = backtestService.calculateCAGR(monthlySeedResults);
+        model.addAttribute("cagr", cagr);
+
         // templates/backtestResult.html 로 이동
         return "backtestResult";
     }

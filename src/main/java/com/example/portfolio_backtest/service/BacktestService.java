@@ -182,6 +182,18 @@ public class BacktestService {
         return stockName.replaceAll(".*\\((.*?)\\)", "$1"); // 괄호 안의 ticker 추출
     }
 
+    public double calculateCAGR(List<Map<String, Object>> monthlyResults) {
+        if (monthlyResults.size() < 2) return 0.0; // 데이터가 부족하면 0 반환
+
+        double initialSeed = (double) monthlyResults.get(0).get("seed");  // 첫 달 시드
+        double finalSeed = (double) monthlyResults.get(monthlyResults.size() - 1).get("seed");  // 마지막 달 시드
+        int months = monthlyResults.size(); // 전체 개월 수
+
+        double cagr = Math.pow(finalSeed / initialSeed, 1.0 / (months / 12.0)) - 1;
+        return cagr * 100; // 퍼센트 단위로 변환
+    }
+
+
     public Map<String, Object> runBacktest(PortfolioDto portfolioDto) {
         // 나중에 실제 계산 로직(주가 데이터 등)을 붙일 수 있음
 
