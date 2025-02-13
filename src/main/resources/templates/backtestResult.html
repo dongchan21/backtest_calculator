@@ -34,6 +34,8 @@
         <th>날짜</th>
         <th>누적 시드 (KRW)</th>
         <th>누적 배당금 (KRW)</th>
+        <th>투자 원금 (KRW)</th>
+        <th>투자 수익 (KRW, %)</th>
     </tr>
     </thead>
     <tbody>
@@ -41,9 +43,29 @@
         <td th:text="${entry.get('date')}"></td>
         <td th:text="${#numbers.formatInteger(entry.get('seed'), 3, 'COMMA')}"></td>
         <td th:text="${entry.get('cumulativeDividends') == 0 ? '0' : #numbers.formatInteger(entry.get('cumulativeDividends'), 3, 'COMMA')}"></td>
+        <td th:text="${#numbers.formatInteger(entry.get('totalInvestment'), 3, 'COMMA')}"></td>  <!-- ✅ 투자 원금 -->
+        <!-- ✅ 투자 수익 계산 -->
+        <td>
+            <span th:class="|${entry.get('investmentReturn') > 0 ? 'profit-positive' :
+                     (entry.get('investmentReturn') < 0 ? 'profit-negative' : 'neutral')}|"
+                    th:text="|${entry.get('investmentReturn') == 0 ? '0' :
+                    (entry.get('investmentReturn') > 0 ? '+' : '') + #numbers.formatInteger(entry.get('investmentReturn'), 3, 'COMMA')}
+                    (${entry.get('returnRatePercentage') == 0 ? '0%' :
+                    (entry.get('returnRatePercentage') > 0 ?
+                    #numbers.formatDecimal(entry.get('returnRatePercentage'), 2, 2).replaceFirst('^0', '') + '%' :
+                    '-' + #numbers.formatDecimal(entry.get('returnRatePercentage') * -1, 2, 2).replaceFirst('^0', '') + '%')})|">
+            </span>
+        </td>
     </tr>
     </tbody>
 </table>
+
+<!-- ✅ 수익 스타일 적용 -->
+<style>
+    .profit-positive { color: #d81414; font-weight: bold; }  /* 🚀 양수(+)는 빨간색 */
+    .profit-negative { color: #3434f4; font-weight: bold; } /* 📉 음수(-)는 파란색 */
+    .neutral { color: black; font-weight: bold; } /* ⚫ 0일 경우 검은색 */
+</style>
 
 <!-- 📌 토글 버튼 -->
 <button onclick="toggleStockData()">📉 주가 데이터 보기</button>

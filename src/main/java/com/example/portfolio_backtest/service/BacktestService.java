@@ -62,6 +62,7 @@ public class BacktestService {
         List<Map<String, Object>> monthlyResults = new ArrayList<>();
         double currentSeed = portfolioDto.getInitialCapital(); // 초기 시드
         double cumulativeDividends = 0.0; // 누적 배당금
+        double totalInvested = portfolioDto.getInitialCapital(); // 누적 투자 금액
 
         // ✅ 최신 상장 주식 이후 데이터만 필터링
         Map<String, List<StockPrice>> filteredStockData = filterStockDataAfterLatestIPO(stockDataInKRW);
@@ -101,7 +102,6 @@ public class BacktestService {
                     double currentPrice = currentPriceOpt.get().getKrwPrice();
                     double prevPrice = prevPriceOpt.get().getKrwPrice();
 
-
                     // 수익률 계산 (이번 달 주가 대비 지난달 대비 상승률)
                     double returnRate = (currentPrice - prevPrice) / prevPrice;
 
@@ -133,14 +133,21 @@ public class BacktestService {
             currentSeed += currentSeed * monthlyReturn;
             System.out.println("currentSeed = " + currentSeed);
             currentSeed += portfolioDto.getMonthlyInvestment(); // 월 납입금 추가
+            totalInvested += portfolioDto.getMonthlyInvestment(); // 누적 투자금 증가
             cumulativeDividends += monthlyDividend;
             currentSeed += monthlyDividend; // 배당금도 다시 투자됨
 
+            // 📌 투자 수익금 및 수익률 계산
+            double investmentReturn = currentSeed - totalInvested;
+            double returnRatePercentage = (investmentReturn / totalInvested) * 100;
             // 결과 저장
             Map<String, Object> result = new HashMap<>();
             result.put("date", date);
             result.put("seed", (double) currentSeed);
             result.put("cumulativeDividends", cumulativeDividends);
+            result.put("investmentReturn", investmentReturn);
+            result.put("totalInvestment", totalInvested);
+            result.put("returnRatePercentage", returnRatePercentage);
             System.out.println("Seed Type: " + result.get("seed").getClass().getSimpleName());
             System.out.println("result = " + result);
             monthlyResults.add(result);
