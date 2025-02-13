@@ -10,6 +10,24 @@
             margin-bottom: 8px;
         }
 
+        .delete-btn {
+            background-color: #ff6d6d;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            text-align: center;
+            line-height: 15px;
+        }
+
+        .delete-btn:hover {
+            background-color: #ff6d6d;
+        }
+
         /* ====== 자동완성 스타일 ====== */
         .autocomplete-container {
             position: relative;
@@ -44,32 +62,53 @@
 
         function addAssetFields() {
             assetCount++;
-
             const container = document.getElementById("assetContainer");
+            const newListId = `autocomplete-list-${assetCount}`;
+            const assetId = `asset-${assetCount}`;
 
-            // 새 자산 행을 담을 div
             const assetDiv = document.createElement("div");
             assetDiv.classList.add("asset-row");
+            assetDiv.setAttribute("id", assetId);
 
-            // 이 자산 행에서 사용할 autocomplete 리스트 영역의 ID
-            const newListId = `autocomplete-list-${assetCount}`;
-
-            // 자산 n번째 필드 HTML:
-            // 자동완성 구조(autocomplete-container) + oninput 콜백 지정
             assetDiv.innerHTML = `
-                <label>자산 ${assetCount} 종목:</label>
-                <div class="autocomplete-container">
-                    <input type="text" name="assets" required
-                        oninput="onTickerInput(this, '${newListId}')"
-                    />
-                    <div id="${newListId}" class="autocomplete-list" style="display:none;"></div>
-                </div>
+        <label class="asset-label">자산 ${assetCount} 종목:</label>  <!-- ✅ 여기에 class 추가 -->
+        <div class="autocomplete-container">
+            <input type="text" name="assets" required
+                oninput="onTickerInput(this, '${newListId}')"
+            />
+            <div id="${newListId}" class="autocomplete-list" style="display:none;"></div>
+        </div>
 
-                <label>비율(%):</label>
-                <input type="number" name="allocations" required />
-            `;
+        <label>비율(%):</label>
+        <input type="number" name="allocations" required />
 
+        <!-- ✅ X 버튼 추가 -->
+        <button type="button" class="delete-btn" onclick="removeAssetField('${assetId}')">X</button>
+    `;
             container.appendChild(assetDiv);
+            updateAssetLabels();  // ✅ 자산 번호 재정렬
+        }
+
+
+        function removeAssetField(assetId) {
+            const assetContainer = document.getElementById("assetContainer");
+            const assetRow = document.getElementById(assetId);
+
+            // 최소 한 개의 자산 필드는 남겨둠
+            if (assetContainer.children.length > 1) {
+                assetContainer.removeChild(assetRow);
+                updateAssetLabels(); // ✅ 삭제 후 자산 번호 재정렬
+            } else {
+                alert("최소 한 개의 자산은 남겨야 합니다!");
+            }
+        }
+
+        // ✅ 자산 번호를 재정렬하는 함수
+        function updateAssetLabels() {
+            const assetRows = document.querySelectorAll(".asset-row");
+            assetRows.forEach((row, index) => {
+                row.querySelector(".asset-label").textContent = `자산 ${index + 1} 종목:`;
+            });
         }
 
         function resetFormFields() {
@@ -86,6 +125,7 @@
                     </div>
                     <label>비율(%):</label>
                     <input type="number" name="allocations" required/>
+                    <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">X</button>
                 </div>
             `;
         }
@@ -283,7 +323,7 @@
 
     <div id="assetContainer">
         <div class="asset-row">
-            <label>자산 1 종목:</label>
+            <label class="asset-label">자산 1 종목:</label>
             <div class="autocomplete-container">
                 <input type="text" name="assets"
                        oninput="onTickerInput(this, 'autocomplete-list-1')"
@@ -293,6 +333,7 @@
             <label>비율(%):</label>
             <input type="number" name="allocations"
                    placeholder="최대 100"/>
+            <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">X</button>
         </div>
     </div>
 
