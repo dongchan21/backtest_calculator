@@ -49,10 +49,13 @@ public class BacktestController {
             @RequestParam("allocations") List<Double> allocations,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate,
-            @RequestParam("initialSeed") Double initialCapital,
-            @RequestParam("monthlyInvestment") Double monthlyInvestment,
+            @RequestParam("initialSeed") long initialSeedManwon,  // "만원" 단위 값 받음
+            @RequestParam("monthlyInvestment") long monthlyInvestmentManwon, // "만원" 단위 값 받음
             Model model) {
 
+        // "만원" 단위를 "원" 단위로 변환
+        long initialCapital = initialSeedManwon * 10_000;
+        long monthlyInvestment = monthlyInvestmentManwon * 10_000;
 
         //assets, allocations Map으로 변환
         Map<String, Double> allocationsMap = new HashMap<>();
