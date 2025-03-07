@@ -5,7 +5,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&family=Red+Hat+Display:ital@0;1&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Portfolio Backtest Form</title>
     <meta charset="UTF-8">
 
@@ -25,21 +25,15 @@
         }
 
         .delete-btn {
-            background-color: #ff6d6d;
-            color: white;
+            background-color: transparent;
             border: none;
             cursor: pointer;
-            font-weight: bold;
-            padding: 5px;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            text-align: center;
-            line-height: 15px;
+            font-size: 18px;
+            color: #6c6b6b;
         }
 
         .delete-btn:hover {
-            background-color: #ff6d6d;
+            color: #000000;
         }
 
         /* ====== 자동완성 스타일 ====== */
@@ -94,11 +88,13 @@
             <div id="${newListId}" class="autocomplete-list" style="display:none;"></div>
         </div>
 
-        <label>비율(%):</label>
+        <label>&nbsp;&nbsp;&nbsp;&nbsp;비율(%)</label>
         <input type="number" name="allocations" required placeholder="최대 100"/>
 
         <!-- ✅ X 버튼 추가 -->
-        <button type="button" class="delete-btn" onclick="removeAssetField('${assetId}')">X</button>
+        <button type="button" class="delete-btn" onclick="removeAssetField('${assetId}')">
+            <i class="fa fa-trash"></i>
+        </button>
     `;
             container.appendChild(assetDiv);
             updateAssetLabels();  // ✅ 자산 번호 재정렬
@@ -139,9 +135,11 @@
                        placeholder="예) SPY 또는 S&P500"/>
                 <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
             </div>
-            <label>비율(%):</label>
+            <label>&nbsp;&nbsp;&nbsp;&nbsp;비율(%)</label>
             <input type="number" name="allocations" required placeholder="최대 100"/>
-            <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">X</button>
+            <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">
+                <i class="fa fa-trash"></i>
+            </button>
         </div>
 
             `;
@@ -318,6 +316,33 @@
             document.getElementById("endDate").setAttribute("max", currentYearMonth);
         });
 
+        function updateTotalAllocation() {
+            let total = 0;
+            const allocationInputs = document.querySelectorAll("input[name='allocations']");
+
+            allocationInputs.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+
+            const totalAllocationField = document.getElementById("total-allocation");
+            totalAllocationField.value = total.toFixed(1); // 소수점 1자리까지 표시
+
+            // 색상 변경 로직
+            if (total === 100) {
+                totalAllocationField.classList.add("valid-allocation");
+                totalAllocationField.classList.remove("invalid-allocation");
+            } else {
+                totalAllocationField.classList.add("invalid-allocation");
+                totalAllocationField.classList.remove("valid-allocation");
+            }
+        }
+
+        // 모든 자산 비율 입력 필드에 이벤트 리스너 추가
+        document.addEventListener("input", function (event) {
+            if (event.target.name === "allocations") {
+                updateTotalAllocation();
+            }
+        });
 
 
     </script>
@@ -379,6 +404,8 @@
         <input type="month" id="endDate" name="endDate" required max="">
     </div>
     <br>
+    <br>
+    <br>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -391,18 +418,96 @@
                        placeholder="예) SPY 또는 S&P500">
                 <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
             </div>
-            <label>비율(%):</label>
+            <label>&nbsp;&nbsp;&nbsp;&nbsp;비율(%)</label>
             <input type="number" name="allocations"
                    placeholder="최대 100"/>
-            <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">X</button>
+            <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">
+                <i class="fa fa-trash"></i>
+            </button>
         </div>
     </div>
 
-    <br>
+
+    <style>
+        .total-allocation-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+
+        .allocation-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        #total-allocation {
+            width: 60px;
+            text-align: right;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .valid-allocation {
+            background-color: #d4edda; /* 녹색 (100%일 때) */
+            color: #155724;
+        }
+
+        .invalid-allocation {
+            background-color: #f8d7da; /* 빨간색 (100%가 아닐 때) */
+            color: #721c24;
+        }.total-allocation-container {
+             display: flex;
+             align-items: center;
+             gap: 10px;
+             font-size: 16px;
+         }
+
+        .allocation-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        #total-allocation {
+            width: 60px;
+            text-align: right;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .valid-allocation {
+            background-color: #d4edda; /* 녹색 (100%일 때) */
+            color: #155724;
+        }
+
+        .invalid-allocation {
+            background-color: #f8d7da; /* 빨간색 (100%가 아닐 때) */
+            color: #721c24;
+        }
+    </style>
     <!-- 자산 추가하기 버튼 -->
     <button type="button" onclick="addAssetFields()">자산 추가하기</button>
     <!-- 초기화 버튼 -->
     <button type="button" onclick="resetFormFields()">초기화</button>
+    <div class="total-allocation-container">
+        <label><strong>Total</strong></label>
+        <div class="allocation-wrapper">
+            <input type="text" id="total-allocation" value="0" readonly>
+            <span>%</span>
+        </div>
+    </div>
 
     <br><br>
 
