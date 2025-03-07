@@ -10,6 +10,11 @@
     <meta charset="UTF-8">
 
     <style>
+        .section-divider {
+            border-top: 2px solid #ccc; /* 회색 구분선 */
+            margin: 20px 0; /* 위아래 여백 */
+        }
+
         .noto-sans-kr {
                            font-family: "Noto Sans KR", serif;
                            font-optical-sizing: auto;
@@ -396,11 +401,16 @@
 <form action="/backtest/run" method="post" id="myForm" onsubmit="validateForm(event)">
     <!-- 날짜 입력 부분 생략 -->
 
-        <div class="noto-sans-kr">
-        <label for="startDate">백테스트 시작 날짜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <h3>📅 날짜 입력</h3>
+            <hr class="section-divider">
+
+            <label for="startDate">백테스트 시작 날짜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <br>
         <input type="month" id="startDate" name="startDate" required max="">
         <br>
+            <br>
         <label for="endDate">백테스트 종료 날짜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <br>
         <input type="month" id="endDate" name="endDate" required max="">
     </div>
     <br>
@@ -411,6 +421,9 @@
 
     <div id="assetContainer">
         <div class="asset-row">
+            <h3>📊 자산 입력</h3>
+            <hr class="section-divider">
+
             <label class="asset-label">자산 1</label>
             <div class="autocomplete-container">
                 <input type="text" name="assets"
@@ -513,7 +526,10 @@
 
     <!-- 초기 시드 입력 부분 (중첩 form 제거) -->
     <div>
-        <label for="initial-seed">초기 시드:</label><br>
+        <h3>💰 시드 입력</h3>
+        <hr class="section-divider">
+
+        <label for="initial-seed">초기 시드</label><br>
         <div class="input-container">
             <input type="number" id="initial-seed" name="initialSeed" required min="0" />
             <span class="unit">만원</span>
@@ -522,7 +538,7 @@
 
     <!-- 월 투자금 입력 부분 -->
     <div>
-        <label for="monthly-investment">매달 투자할 시드:</label><br>
+        <label for="monthly-investment">매달 투자할 시드</label><br>
         <div class="input-container">
             <input type="number" id="monthly-investment" name="monthlyInvestment" required min="0" />
             <span class="unit">만원</span>
@@ -559,7 +575,7 @@
 
 
     <!-- 백테스트 제출 버튼 -->
-    <button type="submit" onclick="validateForm(event)">Run Backtest</button>
+    <button type="submit" onclick="validateForm(event)">백테스트 실행</button>
     </div>
 </form>
 
