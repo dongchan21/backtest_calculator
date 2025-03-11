@@ -21,6 +21,13 @@ public class BacktestService {
         this.stockPriceRepository = stockPriceRepository;
     }
 
+    public LocalDate getFirstStockDate(String ticker) {
+        return stockPriceRepository.findFirstByTickerOrderByDateAsc(ticker)
+                .map(StockPrice::getDate)
+                .orElse(null); // 데이터가 없으면 null 반환
+    }
+
+
     public Map<String, List<StockPrice>> getStockDataWithKRW(List<String> tickers, LocalDate startDate, LocalDate endDate) {
         return tickers.stream()
                 .collect(Collectors.toMap(
