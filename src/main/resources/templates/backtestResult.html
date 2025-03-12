@@ -110,20 +110,28 @@
                 text: '투자 원금 vs 수익금'
             },
             xAxis: {
-                categories: months, // X축에 월 포함된 데이터
-                tickInterval: 12, // 12개월(1년) 간격으로 표시
-                tickLength: 10, // 작은 틱 마크 추가
-                lineColor: 'black', // X축 선 색상
-                tickColor: 'black', // 틱 색상
+                categories: months,
+                tickPositions: months.map((m, i) => (m.endsWith('-01') ? i : null)).filter(i => i !== null), // 1월만 표시
+                tickLength: 10,
+                lineColor: 'gainsboro',
+                tickWidth: 1,
+                tickColor: 'gainsboro',
                 labels: {
                     formatter: function () {
-                        return this.value.substring(0, 4); // "YYYY-MM" → "YYYY"로 변환
+                        return this.value.substring(0, 4); // 연도만 표시
                     }
                 }
             },
             yAxis: {
-                title: {
-                    text: '금액'
+                title: { text: '금액(원)' },
+                labels: {
+                    formatter: function () {
+                        let value = this.value;
+                        if (value >= 1e12) return (value / 1e12).toFixed(0) + '조'; // 조 단위
+                        if (value >= 1e8) return (value / 1e8).toFixed(0) + '억';  // 억 단위
+                        if (value >= 1e4) return (value / 1e4).toFixed(0) + '만';  // 만 단위
+                        return value.toFixed(0); // 만 미만은 그냥 정수 표시
+                    }
                 }
             },
             legend: {
@@ -134,17 +142,31 @@
                 {
                     name: '투자 원금',
                     data: principalAmounts,
-                    color: 'blue'
+                    color: 'dodgerblue'
                 },
                 {
                     name: '총시드',
                     data: totalSeeds,
-                    color: 'red'
+                    color: 'lightcoral'
                 }
             ],
             tooltip: {
                 shared: true,
-                valueDecimals: 0
+                formatter: function () {
+                    let categories = this.series.chart.xAxis[0].categories; // X축 categories 가져오기
+                    let dateLabel = categories[this.points[0].point.index] || this.x; // 올바른 날짜 가져오기
+
+                    return `<b>${dateLabel}</b><br/>` + // 날짜 표시
+                        this.points.map(point => {
+                            let principal = this.points.find(p => p.series.name === '투자 원금')?.y || 0;
+                            let totalSeed = this.points.find(p => p.series.name === '총시드')?.y || 0;
+                            let profitRate = principal > 0 ? ((totalSeed - principal) / principal * 100).toFixed(2) + '%' : 'N/A';
+
+                            let valueText = `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${Highcharts.numberFormat(point.y, 0, '.', ',')}</b>`;
+
+                            return point.series.name === '총시드' ? `${valueText} (수익률: <b>${profitRate}</b>)` : valueText;
+                        }).join('<br/>');
+                }
             },
             plotOptions: {
                 series: {
