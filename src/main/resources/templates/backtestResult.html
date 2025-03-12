@@ -90,37 +90,73 @@
     </p>    </p>    <p>투자 종목: <span th:text="${result.assets}">-</span></p>
 </div>
 
-<h2>투자 원금 vs. 수익금</h2>
-<canvas id="investmentChart"></canvas>
+<h2></h2>
+<div id="investmentChart" style="width: 100%; height: 500px;"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Highcharts 라이브러리 추가 -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
 <script th:inline="javascript">
-    var months = /*[[${months}]]*/ [];
-    var principalAmounts = /*[[${principalAmounts}]]*/ [];
-    var totalSeeds = /*[[${totalSeeds}]]*/ [];
+    document.addEventListener("DOMContentLoaded", function () {
+        var months = /*[[${months}]]*/ [];
+        var principalAmounts = /*[[${principalAmounts}]]*/ [];
+        var totalSeeds = /*[[${totalSeeds}]]*/ [];
 
-    var ctx = document.getElementById('investmentChart').getContext('2d');
-    var investmentChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: months,
-            datasets: [
+        Highcharts.chart('investmentChart', {
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: '투자 원금 vs 수익금'
+            },
+            xAxis: {
+                categories: months, // X축에 월 포함된 데이터
+                tickInterval: 12, // 12개월(1년) 간격으로 표시
+                tickLength: 10, // 작은 틱 마크 추가
+                lineColor: 'black', // X축 선 색상
+                tickColor: 'black', // 틱 색상
+                labels: {
+                    formatter: function () {
+                        return this.value.substring(0, 4); // "YYYY-MM" → "YYYY"로 변환
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    text: '금액'
+                }
+            },
+            legend: {
+                align: 'center',
+                verticalAlign: 'bottom'
+            },
+            series: [
                 {
-                    label: '투자 원금',
+                    name: '투자 원금',
                     data: principalAmounts,
-                    borderColor: 'blue',
-                    fill: true
+                    color: 'blue'
                 },
                 {
-                    label: '총시드',
+                    name: '총시드',
                     data: totalSeeds,
-                    borderColor: 'red',
-                    fill: true
+                    color: 'red'
                 }
-            ]
-        }
+            ],
+            tooltip: {
+                shared: true,
+                valueDecimals: 0
+            },
+            plotOptions: {
+                series: {
+                    marker: {
+                        enabled: false
+                    }
+                }
+            }
+        });
     });
 </script>
+
 
 
 <!-- 📌 월별 시드 결과 (항상 표시) -->
