@@ -19,13 +19,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/backtest")
 public class BacktestController {
-    private static final Logger logger = LoggerFactory.getLogger(BacktestController.class);
     private final BacktestService backtestService;
 
     @Autowired
@@ -57,21 +54,6 @@ public class BacktestController {
 
         LocalDate start = LocalDate.parse(startDate + "-01"); // 백테스트 시작 날짜
         LocalDate end = LocalDate.parse(endDate + "-01");     // 백테스트 종료 날짜
-
-        logger.info("📅 백테스트 요청 날짜: {} ~ {}", start, end);
-
-        // 각 자산의 최초 데이터 날짜 확인
-        for (String asset : assets) {
-            LocalDate firstDataDate = backtestService.getFirstStockDate(asset);
-
-            if (firstDataDate == null) {
-                logger.warn("⚠️ '{}' 주식의 데이터가 없습니다!", asset);
-            } else if (start.isBefore(firstDataDate)) {
-                logger.warn("⚠️ '{}' 주식의 첫 데이터는 {}부터 시작합니다. (백테스트 시작 날짜: {})", asset, firstDataDate, start);
-            } else {
-                logger.info("✅ '{}' 주식의 데이터는 {}부터 존재합니다.", asset, firstDataDate);
-            }
-        }
 
         // "만원" 단위를 "원" 단위로 변환
         long initialCapital = initialSeedManwon * 10_000;

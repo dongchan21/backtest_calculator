@@ -68,7 +68,9 @@
     </div>
 </nav>
 
-<h1>Backtest Result</h1>
+<h1 th:text="|백테스트 결과|">
+    백테스트 결과 (연도 월 ~ 연도 월)
+</h1>
 
 <div th:if="${result != null}">
     <p>총 수익률:
@@ -76,9 +78,7 @@
               th:if="${iterStat.last}"
               th:text="${#numbers.formatDecimal(entry.get('returnRatePercentage'), 2, 2)} + '%'">0.00%</span>
     </p>
-    <p class="red-hat-display">연평균 성장률:
-        <span th:text="${#numbers.formatDecimal(cagr, 2, 2)} + '%'">0.00%</span>
-    </p>
+
     <p>백테스트 시작: <span th:text="${monthlySeedResults[0].get('date')}">-</span></p>
     <p>백테스트 종료: <span th:text="${result.endDate}">-</span></p>
     <p>초기 자본:
