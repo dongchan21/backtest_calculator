@@ -71,6 +71,14 @@
             background-color: #d5d5d5; /* 약간의 배경색 */
         }
 
+        .blue-title {
+            color: #1a2aff;       /* 선명한 파란색 */
+            font-weight: bold;    /* 굵게 */
+            font-size: 25px;      /* 크기 조정 (원하는 만큼) */
+            margin-top: -10px;       /* 🔼 바로 이 줄! 값을 줄이거나 없애면 위로 붙음 */
+            margin-bottom: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -124,7 +132,7 @@
 </div>
 
 <div class="content-box" th:if="${result != null}">
-
+    <h3 class="blue-title">포트폴리오 요약</h3>
     <p>총 수익률:
         <span th:each="entry, iterStat : ${monthlySeedResults}"
               th:if="${iterStat.last}"
