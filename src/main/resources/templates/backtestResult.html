@@ -70,6 +70,7 @@
             color: #222222; /* 텍스트 색*/
             background-color: #d5d5d5; /* 약간의 배경색 */
         }
+
     </style>
 </head>
 <body>
@@ -118,7 +119,7 @@
     <p th:inline="text">
         <strong>참고:</strong> 데이터가 제공되는 기간의 제한으로 인해 본 백테스트는
         [[${latestIPOTicker}]]의 가용 기간인
-        <strong>[[${latestIPODate}]] ~ [[${endDateFormatted}]]</strong> 기준으로 진행되었습니다.
+        <strong>[[${latestIPODate}]]~[[${endDateFormatted}]]</strong> 기준으로 진행되었습니다.
     </p>
 </div>
 
@@ -136,7 +137,9 @@
 
     <p>월 납입금:
         <span th:text="${result.monthlyInvestment == 0 ? '0원' : #numbers.formatInteger(result.monthlyInvestment, 0, 'COMMA') + '원'}">-</span>
-    </p>    </p>    <p>투자 종목: <span th:text="${result.assets}">-</span></p>
+    </p>
+
+    <div id="assetPieChart" style="width: 600px; height: 400px;"></div>
 </div>
 
 <h2></h2>
@@ -226,6 +229,71 @@
             }
         });
     });
+</script>
+
+<script th:inline="javascript">
+    // [[${assets}]] → Map<String, Double>를 JS 객체로 변환
+    let assetMap = /*[[${result.assets}]]*/ {};
+    console.log("📊 자산 데이터:", assetMap);
+
+    // Map → 하이차트용 배열로 변환: [{ name: "...", y: ... }, ...]
+    let chartData = Object.entries(assetMap).map(([name, value]) => ({
+        name: name,
+        y: value
+    }));
+
+    console.log("📈 하이차트용 데이터:", chartData);
+
+    Highcharts.chart('assetPieChart', {
+            chart: {
+                type: 'pie',
+                backgroundColor: '#f9f9f9'  // ← 배경색 설정 (예: 연회색)
+            },
+            title: {
+                text: null
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
+                }
+            },
+
+            plotOptions: {
+                pie: {
+                    innerSize: '50%',  // ← 도넛 차트 (중앙 뚫기)
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.percentage:.1f} %',  // ← 퍼센트만 표시
+                        distance: -30,  // 라벨 안쪽으로 당기기 (원 안에 표시)
+                        style: {
+                            color: 'white',
+                            fontWeight: 'bold',
+                            textOutline: 'none'
+                        }
+                    },
+                    showInLegend: true  // ← 범례 표시
+                }
+            },
+            legend: {
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom',
+                itemStyle: {
+                    fontSize: '13px'
+                }
+            },
+            series: [{
+                name: '비중',
+                colorByPoint: true,
+                data: chartData
+            }]
+        });
+
 </script>
 
 
