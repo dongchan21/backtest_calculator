@@ -110,13 +110,16 @@
     </div>
 </nav>
 
-
-<h2>&nbsp;&nbsp;백테스트 결과</h2>
+<h2 th:text="|백테스트 결과 (${latestIPODate} - ${endDateFormatted})|">백테스트 결과</h2>
 
 <hr class="section-divider">
 
 <div class="note-box">
-    <strong>참고:</strong> 데이터가 제공되는 기간의 제한으로 인해 본 백테스트는 <span th:text="${latestIPOTicker}"></span>의 가용 기간인 <strong>[<span th:text="${monthlySeedResults[0].get('date')}">-</span> ~ <span th:text="${result.endDate}">-</span>]</strong> 기준으로 진행되었습니다.
+    <p th:inline="text">
+        <strong>참고:</strong> 데이터가 제공되는 기간의 제한으로 인해 본 백테스트는
+        [[${latestIPOTicker}]]의 가용 기간인
+        <strong>[[${latestIPODate}]] ~ [[${endDateFormatted}]]</strong> 기준으로 진행되었습니다.
+    </p>
 </div>
 
 <div class="content-box" th:if="${result != null}">
@@ -127,8 +130,6 @@
               th:text="${#numbers.formatDecimal(entry.get('returnRatePercentage'), 2, 2)} + '%'">0.00%</span>
     </p>
 
-    <p>백테스트 시작: <span th:text="${monthlySeedResults[0].get('date')}">-</span></p>
-    <p>백테스트 종료: <span th:text="${result.endDate}">-</span></p>
     <p>초기 자본:
         <span th:text="${result.initialCapital == 0 ? '0원' : #numbers.formatInteger(result.initialCapital, 0, 'COMMA') + '원'}">-</span>
     </p>

@@ -131,7 +131,7 @@ public class BacktestService {
                     monthlyDividend += sharesOwned * dividendsKrw;
 
                     // 각 종목별 수익률 반영
-                    monthlyReturn += returnRate * allocation /100;
+                    monthlyReturn += returnRate * allocation / 100;
                     System.out.println("monthlyReturn = " + monthlyReturn);
                 }
             }
@@ -248,4 +248,10 @@ public class BacktestService {
         // ...필요한 데이터들을 채워서 반환
         return resultMap;
     }
+
+    public String formatYearMonth(String raw) {
+        String[] parts = raw.split("-");
+        return parts[0] + "년 " + Integer.parseInt(parts[1]) + "월";
+    }
 }
+

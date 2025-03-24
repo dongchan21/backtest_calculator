@@ -13,10 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.YearMonth;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -119,6 +116,15 @@ public class BacktestController {
         // 상장일 기준으로 필터링
         Map<String, List<StockPrice>> filteredStockData = backtestService.filterStockDataAfterLatestIPO(stockData);
 
+        for (Map.Entry<String, List<StockPrice>> entry : filteredStockData.entrySet()) {
+            String ticker = entry.getKey();
+            List<StockPrice> prices = entry.getValue();
+
+            if (!prices.isEmpty()) {
+                LocalDate firstDate = prices.get(0).getDate();
+            }
+        }
+
         // 모델에 필터링된 데이터 추가
         model.addAttribute("stockData", filteredStockData);
 
@@ -147,7 +153,6 @@ public class BacktestController {
             totalSeeds.add(seed);  // ✅ 누적 시드 값 저장
         }
 
-
         model.addAttribute("months", months);
         model.addAttribute("principalAmounts", principalAmounts);
         model.addAttribute("totalSeeds", totalSeeds);
@@ -159,9 +164,17 @@ public class BacktestController {
         double cagr = backtestService.calculateCAGR(monthlySeedResults);
         model.addAttribute("cagr", cagr);
 
+        //날짜 형식 변경해서 넘겨주기 : "2015-02" --> "2015년 2월"
+        String latestIPOFormatted = getLatestIPOFormattedDate(filteredStockData);
+        model.addAttribute("latestIPODate", latestIPOFormatted);
+
+        String endDateFormatted = formatYearMonth(portfolioDto.getEndDate().toString());     // "2025-02"
+        model.addAttribute("endDateFormatted", endDateFormatted);
+
         // templates/backtestResult.html 로 이동
         return "backtestResult";
     }
+
     /**
      * ✅ 주식명에서 티커(symbol)만 추출하는 메서드
      * 예: ["Apple Inc. (AAPL)", "Tesla Inc. (TSLA)"] → ["AAPL", "TSLA"]
@@ -175,7 +188,23 @@ public class BacktestController {
                 })
                 .collect(Collectors.toList());
     }
+
+    public String formatYearMonth(String raw) {
+        String[] parts = raw.split("-");
+        return parts[0] + "년 " + Integer.parseInt(parts[1]) + "월";
+    }
+
+    public String getLatestIPOFormattedDate(Map<String, List<StockPrice>> filteredStockData) {
+        // 1. 가장 늦은 상장일 찾기
+        Optional<LocalDate> latestIPO = filteredStockData.values().stream()
+                .filter(prices -> !prices.isEmpty())
+                .map(prices -> prices.get(0).getDate())
+                .max(LocalDate::compareTo);
+
+        // 2. 포맷 후 리턴
+        return latestIPO
+                .map(date -> date.format(DateTimeFormatter.ofPattern("yyyy년 M월")))
+                .orElse("날짜 없음");
+    }
 }
-
-
 
