@@ -1,5 +1,6 @@
 package com.example.portfolio_backtest.service;
 
+import com.example.portfolio_backtest.domain.FilteredStockResult;
 import com.example.portfolio_backtest.domain.PortfolioDto;
 import com.example.portfolio_backtest.entity.StockPrice;
 import com.example.portfolio_backtest.repository.StockPriceRepository;
@@ -12,9 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class BacktestService {
-    /**
-     * 임시로 백테스트를 수행하는 메서드 예시
-     */
+
     private final StockPriceRepository stockPriceRepository;
 
     public BacktestService(StockPriceRepository stockPriceRepository) {
@@ -188,6 +187,34 @@ public class BacktestService {
                 ));
     }
 
+    public FilteredStockResult filterStockDataAndFindLatest(Map<String, List<StockPrice>> stockData, PortfolioDto portfolioDto) {
+        return stockData.entrySet().stream()
+                .filter(entry -> !entry.getValue().isEmpty())
+                .map(entry -> Map.entry(entry.getKey(), entry.getValue().get(0).getDate()))
+                .max(Map.Entry.comparingByValue())
+                .map(latestEntry -> {
+                    String latestTicker = latestEntry.getKey();
+                    LocalDate latestIPODate = latestEntry.getValue();
+
+                    // 🔥 여기서 주식명(티커) 형태 찾기
+                    String fullName = portfolioDto.getAllocations().keySet().stream()
+                            .filter(name -> extractTicker(name).equals(latestTicker))
+                            .findFirst()
+                            .orElse(latestTicker); // 못 찾으면 티커만
+
+                    Map<String, List<StockPrice>> filtered = stockData.entrySet().stream()
+                            .collect(Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    entry -> entry.getValue().stream()
+                                            .filter(price -> !price.getDate().isBefore(latestIPODate))
+                                            .collect(Collectors.toList())
+                            ));
+
+                    return new FilteredStockResult(filtered, fullName, latestIPODate);
+                })
+                .orElseThrow(() -> new IllegalStateException("No stock data"));
+    }
+
     private String extractTicker(String stockName) {
         return stockName.replaceAll(".*\\((.*?)\\)", "$1"); // 괄호 안의 ticker 추출
     }
@@ -213,6 +240,7 @@ public class BacktestService {
         resultMap.put("totalReturn", 0.12); // 12% 수익이라고 가정
         resultMap.put("startDate", portfolioDto.getStartDate());
         resultMap.put("endDate", portfolioDto.getEndDate());
+        resultMap.put("latestIPOTicker", portfolioDto.getLatestIPOTicker());
         resultMap.put("initialCapital", portfolioDto.getInitialCapital());
         resultMap.put("monthlyInvestment", portfolioDto.getMonthlyInvestment());
         resultMap.put("assets", portfolioDto.getAllocations());

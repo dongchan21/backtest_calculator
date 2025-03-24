@@ -1,5 +1,6 @@
 package com.example.portfolio_backtest.controller;
 
+import com.example.portfolio_backtest.domain.FilteredStockResult;
 import com.example.portfolio_backtest.domain.PortfolioDto;
 import com.example.portfolio_backtest.entity.StockPrice;
 import com.example.portfolio_backtest.service.BacktestService;
@@ -33,6 +34,7 @@ public class BacktestController {
     /**
      * 백테스트 폼 페이지로 이동
      */
+
     @GetMapping("/form")
     public String showBacktestForm() {
         // templates/backtestForm.html 로 이동
@@ -104,7 +106,9 @@ public class BacktestController {
 
         // ✅ 원화 주가 계산
         Map<String, List<StockPrice>> stockDataInKRW = backtestService.convertToKRW(stockData);
+        FilteredStockResult filtered = backtestService.filterStockDataAndFindLatest(stockData, portfolioDto);
 
+        model.addAttribute("latestIPOTicker", filtered.getLatestTicker());
         model.addAttribute("stockData", stockData);
         model.addAttribute("stockDataInKRW", stockDataInKRW);
         model.addAttribute("assets", tickers);
@@ -172,4 +176,6 @@ public class BacktestController {
                 .collect(Collectors.toList());
     }
 }
+
+
 

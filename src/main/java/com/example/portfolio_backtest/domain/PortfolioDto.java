@@ -9,6 +9,7 @@ public class PortfolioDto {
     private YearMonth endDate;
     private double initialCapital;
     private double monthlyInvestment;
+    private String LatestIPOTicker;
     // Getter/Setter
     public Map<String, Double> getAllocations() {
         return allocations;
@@ -45,5 +46,13 @@ public class PortfolioDto {
 
     public void setMonthlyInvestment(double monthlyInvestment) {
         this.monthlyInvestment = monthlyInvestment;
+    }
+
+    public String getLatestIPOTicker() {
+        return LatestIPOTicker;
+    }
+
+    public void setLatestIPOTicker(String latestIPOTicker) {
+        LatestIPOTicker = latestIPOTicker;
     }
 }

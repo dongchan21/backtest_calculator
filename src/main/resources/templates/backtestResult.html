@@ -13,9 +13,21 @@
             font-weight: 400;
             font-style: normal;
         }
+
+
+        .section-divider {
+            margin-top: 0.4rem;     /* 선과 제목 사이 간격 최소화 */
+            margin-bottom: 1rem;    /* 선과 note-box 간격 */
+            max-width: 95%;  /* 전체 너비의 95%까지만 차지 */
+            border-top: 2px solid #222222; /* 회색 구분선 */
+         }
+
     </style>
-    <title>백테스트 결과()</title>
+
+
+    <title>백테스트 결과</title>
     <script>
+
         function toggleStockData() {
             var stockSection = document.getElementById("stockDataSection");
             if (stockSection.style.display === "none") {
@@ -47,6 +59,16 @@
             box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
             margin: 20px auto; /* 가운데 정렬 */
             line-height: 1.6; /* 가독성 증가 */
+        }
+
+        .note-box {
+            max-width: 95%;  /* 전체 너비의 95%까지만 차지 */
+            border-left: 4px solid #3b82f6; /* 파란색 세로줄 */
+            padding-left: 12px;
+            margin: 20px auto;
+            font-size: 0.9rem;
+            color: #222222; /* 텍스트 색*/
+            background-color: #d5d5d5; /* 약간의 배경색 */
         }
     </style>
 </head>
@@ -88,11 +110,17 @@
     </div>
 </nav>
 
-<h1 th:text="|백테스트 결과|">
-    백테스트 결과 (연도 월 ~ 연도 월)
-</h1>
+
+<h2>&nbsp;&nbsp;백테스트 결과</h2>
+
+<hr class="section-divider">
+
+<div class="note-box">
+    <strong>참고:</strong> 데이터가 제공되는 기간의 제한으로 인해 본 백테스트는 <span th:text="${latestIPOTicker}"></span>의 가용 기간인 <strong>[<span th:text="${monthlySeedResults[0].get('date')}">-</span> ~ <span th:text="${result.endDate}">-</span>]</strong> 기준으로 진행되었습니다.
+</div>
 
 <div class="content-box" th:if="${result != null}">
+
     <p>총 수익률:
         <span th:each="entry, iterStat : ${monthlySeedResults}"
               th:if="${iterStat.last}"
