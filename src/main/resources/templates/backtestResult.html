@@ -6,19 +6,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Pretendard CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
     <style>
-        .red-hat-display {
-            font-family: "Red Hat Display", serif;
-            font-optical-sizing: auto;
-            font-weight: 400;
-            font-style: normal;
+        .section-title {
+            font-family: 'Pretendard', sans-serif;
+            font-weight: 500;
+            font-size: 30px;
+            color: #1A1AFF;
         }
+    </style>
 
-
+    <style>
         .section-divider {
             margin-top: 0.4rem;     /* 선과 제목 사이 간격 최소화 */
             margin-bottom: 1rem;    /* 선과 note-box 간격 */
-            max-width: 95%;  /* 전체 너비의 95%까지만 차지 */
+            max-width: 100%;  /* 전체 너비의 95%까지만 차지 */
             border-top: 2px solid #222222; /* 회색 구분선 */
          }
 
@@ -79,8 +83,9 @@
         /* 전체 배경색 */
         body {
             background-color: #d5d5d5; /* 연한 회색 배경 */
-            margin: 0;
             padding: 0;
+            font-family: 'Pretendard', sans-serif;
+            margin: 0;
         }
 
         /* 전체 컨텐츠를 감싸는 박스 */
@@ -106,8 +111,8 @@
 
         .blue-title {
             color: #1a2aff;       /* 선명한 파란색 */
-            font-weight: bold;    /* 굵게 */
-            font-size: 25px;      /* 크기 조정 (원하는 만큼) */
+            font-weight: 400;    /* 굵게 */
+            font-size: 30px;      /* 크기 조정 (원하는 만큼) */
             margin-top: -10px;       /* 🔼 바로 이 줄! 값을 줄이거나 없애면 위로 붙음 */
             margin-bottom: 20px;
         }
@@ -165,20 +170,7 @@
 </div>
 
 <div class="content-box" th:if="${result != null}">
-    <h3 class="blue-title">포트폴리오 요약</h3>
-    <p>총 수익률:
-        <span th:each="entry, iterStat : ${monthlySeedResults}"
-              th:if="${iterStat.last}"
-              th:text="${#numbers.formatDecimal(entry.get('returnRatePercentage'), 2, 2)} + '%'">0.00%</span>
-    </p>
-
-    <p>초기 자본:
-        <span th:text="${result.initialCapital == 0 ? '0원' : #numbers.formatInteger(result.initialCapital, 0, 'COMMA') + '원'}">-</span>
-    </p>
-
-    <p>월 납입금:
-        <span th:text="${result.monthlyInvestment == 0 ? '0원' : #numbers.formatInteger(result.monthlyInvestment, 0, 'COMMA') + '원'}">-</span>
-    </p>
+    <h3 class="section-title">포트폴리오 요약</h3>
 
     <div style="display: flex; align-items: flex-start; gap: 40px;">
         <div style="flex: 1;">
@@ -201,9 +193,11 @@
         </div>
     </div>
 
+    <hr style="border: none; border-top: 2px solid #939393; margin: 0; width: 100%;" />
+    <br>
+    <h3 class="section-title">투자 성과 요약</h3>
 </div>
 
-<h2></h2>
 <div class="content-box" id="investmentChart" style="width: 100%; height: 500px;"></div>
 
 <!-- Highcharts 라이브러리 추가 -->
