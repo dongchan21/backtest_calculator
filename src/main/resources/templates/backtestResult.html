@@ -22,6 +22,39 @@
             border-top: 2px solid #222222; /* 회색 구분선 */
          }
 
+        .etf-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .etf-table thead {
+            background-color: #f5f5f5;
+        }
+
+        .etf-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #bbb;
+        }
+
+        .etf-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #333;
+        }
+
+        .etf-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .etf-table td:last-child,
+        .etf-table th:last-child {
+            text-align: right;
+        }
     </style>
 
 
@@ -147,7 +180,27 @@
         <span th:text="${result.monthlyInvestment == 0 ? '0원' : #numbers.formatInteger(result.monthlyInvestment, 0, 'COMMA') + '원'}">-</span>
     </p>
 
-    <div id="assetPieChart" style="width: 600px; height: 400px;"></div>
+    <div style="display: flex; align-items: flex-start; gap: 40px;">
+        <div style="flex: 1;">
+            <table id="asset-table" class="etf-table">
+                <thead>
+                <tr>
+                    <th>티커</th>
+                    <th>주식명</th>
+                    <th>비율</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- 여기에 자바스크립트가 동적으로 <tr> 추가 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div style="flex: 1;">
+            <div id="assetPieChart" style="width: 600px; height: 400px;"></div>
+        </div>
+    </div>
+
 </div>
 
 <h2></h2>
@@ -238,6 +291,31 @@
         });
     });
 </script>
+
+
+<script th:inline="javascript">
+    let assetMapTable = /*[[${result.assets}]]*/ {};
+
+    const tableBody = document.querySelector('#asset-table tbody');
+
+    for (const [fullName, allocation] of Object.entries(assetMapTable)) {
+        const row = document.createElement('tr');
+
+        // 티커와 이름 분리 (예: "ProShares Ultra QQQ (QLD)")
+        const tickerMatch = fullName.match(/\((.*?)\)$/); // 괄호 안 추출
+        const ticker = tickerMatch ? tickerMatch[1] : fullName;
+        const name = fullName;
+
+        row.innerHTML = `
+            <td>${ticker}</td>
+            <td>${name}</td>
+            <td style="text-align: right;">${allocation.toFixed(2)}%</td>
+        `;
+
+        tableBody.appendChild(row);
+    }
+</script>
+
 
 <script th:inline="javascript">
     // [[${assets}]] → Map<String, Double>를 JS 객체로 변환
