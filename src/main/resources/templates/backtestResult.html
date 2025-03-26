@@ -10,15 +10,21 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
 
     <style>
+
         .section-title {
             font-family: 'Pretendard', sans-serif;
             font-weight: 500;
             font-size: 30px;
             color: #1A1AFF;
         }
-    </style>
 
-    <style>
+        .section-title-black {
+            font-family: 'Pretendard', sans-serif;
+            font-weight: 500;
+            font-size: 30px;
+            color: #090909;
+        }
+
         .section-divider {
             margin-top: 0.4rem;     /* 선과 제목 사이 간격 최소화 */
             margin-bottom: 1rem;    /* 선과 note-box 간격 */
@@ -59,6 +65,50 @@
         .etf-table th:last-child {
             text-align: right;
         }
+
+        .metrics-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 50px;
+        }
+
+        .metric-box {
+            flex: 1;
+        }
+
+        .metric-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .metric-block {
+            background-color: #34f7c6;
+            color: black;
+            font-weight: bold;
+            padding: 20px 0;
+            border-radius: 10px;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .metric-block.red {
+            background-color: #ff8c8c;
+        }
+
+        .benchmark-note {
+            font-size: 12px;
+            color: #777;
+            margin-top: 8px;
+        }
+
+        .metric-label {
+            font-weight: bold;
+            margin-top: 16px;
+            margin-bottom: 6px;
+        }
+
     </style>
 
 
@@ -196,6 +246,41 @@
     <hr style="border: none; border-top: 2px solid #939393; margin: 0; width: 100%;" />
     <br>
     <h3 class="section-title">투자 성과 요약</h3>
+
+    <!-- Return 섹션 -->
+    <div class="metrics-container">
+        <!-- Return 영역 -->
+        <div class="metric-box">
+            <div class="section-title-black">Return</div>
+
+            <div class="metric-subtitle">수익률</div>
+            <div class="metric-label">내 포트폴리오 수익률</div>
+            <div class="metric-block">
+                <span th:each="entry, iterStat : ${monthlySeedResults}"
+                      th:if="${iterStat.last}"
+                      th:text="${#numbers.formatDecimal(entry.get('returnRatePercentage'), 2, 2)} + '%'">0.00%</span>
+            </div>
+
+            <div class="metric-label">벤치마크 대비 수익률</div>
+            <div class="metric-block">0%</div>
+
+            <div class="benchmark-note">Benchmark: SPDR S&P 500 ETF Trust(SPY)</div>
+        </div>
+
+        <!-- Risk 영역 -->
+        <div class="metric-box">
+            <div class="section-title-black">Risk</div>
+
+            <div class="metric-subtitle">변동성 및 낙폭</div>
+
+            <div class="metric-label">표준편차</div>
+            <div class="metric-block red">0%</div>
+
+            <div class="metric-label">최대 낙폭</div>
+            <div class="metric-block red">0%</div>
+        </div>
+    </div>
+
 </div>
 
 <div class="content-box" id="investmentChart" style="width: 100%; height: 500px;"></div>

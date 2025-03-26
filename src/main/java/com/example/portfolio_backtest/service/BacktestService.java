@@ -74,6 +74,7 @@ public class BacktestService {
         // ✅ 최신 상장 주식 이후 데이터만 필터링
         Map<String, List<StockPrice>> filteredStockData = filterStockDataAfterLatestIPO(stockDataInKRW);
 
+
         // ✅ 가장 늦게 상장된 주식의 상장일 찾기
         LocalDate latestIPODate = filteredStockData.values().stream()
                 .filter(prices -> !prices.isEmpty())
@@ -234,6 +235,21 @@ public class BacktestService {
     public Map<String, Object> runBacktest(PortfolioDto portfolioDto) {
         // 나중에 실제 계산 로직(주가 데이터 등)을 붙일 수 있음
 
+        PortfolioDto spyPortfolioDto = createSpyPortfolioDto(portfolioDto);
+
+        // ✅ spy vs my portfolio를 위한
+        Map<String, List<StockPrice>> spyStockData =
+                getStockDataWithKRW(List.of("SPY", "KRW=X"), portfolioDto.getStartDate().atDay(1), portfolioDto.getEndDate().atEndOfMonth());
+
+        Map<String, List<StockPrice>> spyStockDataInKRW = convertToKRW(spyStockData);
+
+        List<Map<String, Object>> spyMonthlyResults =
+                calculateMonthlySeed(spyPortfolioDto, spyStockDataInKRW);
+
+        double spyCAGR = calculateCAGR(spyMonthlyResults);
+        double spyFinalReturn = ((double) spyMonthlyResults.get(spyMonthlyResults.size() - 1).get("returnRatePercentage"));
+
+
 
         // 예시 결과: "총 수익률", "그래프 데이터" 등
         Map<String, Object> resultMap = new HashMap<>();
@@ -245,6 +261,11 @@ public class BacktestService {
         resultMap.put("monthlyInvestment", portfolioDto.getMonthlyInvestment());
         resultMap.put("assets", portfolioDto.getAllocations());
 
+        Map<String, Object> spyResult = new HashMap<>();
+        spyResult.put("cagr", spyCAGR);
+        spyResult.put("finalReturn", spyFinalReturn);
+        resultMap.put("spyResult", spyResult);
+
         // ...필요한 데이터들을 채워서 반환
         return resultMap;
     }
@@ -252,6 +273,22 @@ public class BacktestService {
     public String formatYearMonth(String raw) {
         String[] parts = raw.split("-");
         return parts[0] + "년 " + Integer.parseInt(parts[1]) + "월";
+    }
+
+    //내 포트폴리오 vs SPY 퍼포먼스 비교
+    private PortfolioDto createSpyPortfolioDto(PortfolioDto original) {
+        PortfolioDto spyDto = new PortfolioDto();
+        spyDto.setInitialCapital(original.getInitialCapital());
+        spyDto.setMonthlyInvestment(original.getMonthlyInvestment());
+        spyDto.setStartDate(original.getStartDate());
+        spyDto.setEndDate(original.getEndDate());
+
+        // SPY 100% 투자
+        Map<String, Double> allocation = new HashMap<>();
+        allocation.put("SPY", 100.0);
+        spyDto.setAllocations(allocation);
+
+        return spyDto;
     }
 }
 
