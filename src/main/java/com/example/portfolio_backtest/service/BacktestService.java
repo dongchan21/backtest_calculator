@@ -252,5 +252,29 @@ public class BacktestService {
         String[] parts = raw.split("-");
         return parts[0] + "년 " + Integer.parseInt(parts[1]) + "월";
     }
+
+    public double calculateMDD(List<Map<String, Object>> monthlyResults) {
+        if (monthlyResults == null || monthlyResults.isEmpty()) return 0.0;
+
+        double maxPeak = (double) monthlyResults.get(0).get("seed");  // 초기 최고 시드
+        double maxDrawdown = 0.0;
+
+        for (Map<String, Object> result : monthlyResults) {
+            double currentSeed = (double) result.get("seed");
+
+            if (currentSeed > maxPeak) {
+                maxPeak = currentSeed; // 새로운 최고점 갱신
+            } else {
+                double drawdown = (maxPeak - currentSeed) / maxPeak;
+                if (drawdown > maxDrawdown) {
+                    maxDrawdown = drawdown; // 최대 낙폭 갱신
+                }
+            }
+        }
+
+        return maxDrawdown * 100; // 퍼센트로 반환 (예: 15.3%)
+    }
+
+
 }
 

@@ -164,6 +164,9 @@ public class BacktestController {
         double cagr = backtestService.calculateCAGR(monthlySeedResults);
         model.addAttribute("cagr", cagr);
 
+        double mdd = backtestService.calculateMDD(monthlySeedResults);
+        model.addAttribute("mdd", mdd);
+
         //날짜 형식 변경해서 넘겨주기 : "2015-02" --> "2015년 2월"
         String latestIPOFormatted = getLatestIPOFormattedDate(filteredStockData);
         model.addAttribute("latestIPODate", latestIPOFormatted);
