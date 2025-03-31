@@ -270,9 +270,19 @@
 
             <div class="metric-label">최대 낙폭</div>
             <div class="metric-block red">
-                <span th:text="${#numbers.formatDecimal(mdd, 1, 1)} + '%'"></span>            </div>
+                <span th:text="${#numbers.formatDecimal(mdd, 1, 1)} + '%'"></span>
+            </div>
+            <div class="metric-subtitle">
+                <p th:if="${mddPeakDate != null and mddTroughDate != null}">
+                    📉해당 낙폭은
+                    <strong><span th:text="${#temporals.format(mddPeakDate, 'yyyy년 MM월')}"></span></strong>
+                    부터
+                    <strong><span th:text="${#temporals.format(mddTroughDate, 'yyyy년 MM월')}"></span></strong>
+                    까지 발생했습니다.
+                </p>
+            </div>
+
         </div>
-    </div>
 
 </div>
 

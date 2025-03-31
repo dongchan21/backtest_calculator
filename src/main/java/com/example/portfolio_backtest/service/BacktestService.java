@@ -253,26 +253,40 @@ public class BacktestService {
         return parts[0] + "년 " + Integer.parseInt(parts[1]) + "월";
     }
 
-    public double calculateMDD(List<Map<String, Object>> monthlyResults) {
-        if (monthlyResults == null || monthlyResults.isEmpty()) return 0.0;
+    public Map<String, Object> calculateMDD(List<Map<String, Object>> monthlyResults) {
+        if (monthlyResults == null || monthlyResults.isEmpty()) return Map.of();
 
-        double maxPeak = (double) monthlyResults.get(0).get("seed");  // 초기 최고 시드
+        double maxPeak = (double) monthlyResults.get(0).get("seed");
+        LocalDate currentPeakDate = ((YearMonth) monthlyResults.get(0).get("date")).atEndOfMonth();
+
         double maxDrawdown = 0.0;
+        LocalDate mddPeakDate = currentPeakDate;
+        LocalDate mddTroughDate = currentPeakDate;
 
         for (Map<String, Object> result : monthlyResults) {
             double currentSeed = (double) result.get("seed");
+            LocalDate currentDate = ((YearMonth) result.get("date")).atEndOfMonth();
 
+            // peak 갱신
             if (currentSeed > maxPeak) {
-                maxPeak = currentSeed; // 새로운 최고점 갱신
-            } else {
-                double drawdown = (maxPeak - currentSeed) / maxPeak;
-                if (drawdown > maxDrawdown) {
-                    maxDrawdown = drawdown; // 최대 낙폭 갱신
-                }
+                maxPeak = currentSeed;
+                currentPeakDate = currentDate;
+            }
+
+            // drawdown 계산
+            double drawdown = (maxPeak - currentSeed) / maxPeak;
+            if (drawdown > maxDrawdown) {
+                maxDrawdown = drawdown;
+                mddPeakDate = currentPeakDate;   // drawdown 기준의 peak 날짜
+                mddTroughDate = currentDate;     // drawdown 기준의 trough 날짜
             }
         }
 
-        return maxDrawdown * 100; // 퍼센트로 반환 (예: 15.3%)
+        Map<String, Object> mddInfo = new HashMap<>();
+        mddInfo.put("mddValue", maxDrawdown * 100);
+        mddInfo.put("peakDate", mddPeakDate);
+        mddInfo.put("troughDate", mddTroughDate);
+        return mddInfo;
     }
 
 
