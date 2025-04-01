@@ -289,6 +289,43 @@ public class BacktestService {
         return mddInfo;
     }
 
+    public Map<Integer, Double> calculateYearlyReturns(List<Map<String, Object>> monthlySeedResults) {
+        Map<Integer, Double> yearlyReturns = new HashMap<>();
+        Map<Integer, List<Double>> yearlySeedMap = new HashMap<>();
+
+        for (Map<String, Object> entry : monthlySeedResults) {
+            YearMonth date = YearMonth.parse(entry.get("date").toString());
+            int year = date.getYear();
+            double seed = (double) entry.get("seed");
+
+            yearlySeedMap.computeIfAbsent(year, k -> new ArrayList<>()).add(seed);
+        }
+
+        for (Map.Entry<Integer, List<Double>> entry : yearlySeedMap.entrySet()) {
+            List<Double> seeds = entry.getValue();
+            if (seeds.size() >= 2) {
+                double start = seeds.get(0);
+                double end = seeds.get(seeds.size() - 1);
+                double returnRate = ((end - start) / start) * 100;
+                yearlyReturns.put(entry.getKey(), returnRate);
+            }
+        }
+
+        return yearlyReturns;
+    }
+
+    public List<Map<String, Object>> convertToHighchartsFormat(Map<Integer, Double> yearlyReturns) {
+        List<Map<String, Object>> chartData = new ArrayList<>();
+
+        for (Map.Entry<Integer, Double> entry : yearlyReturns.entrySet()) {
+            Map<String, Object> dataPoint = new HashMap<>();
+            dataPoint.put("name", String.valueOf(entry.getKey())); // 연도
+            dataPoint.put("y", entry.getValue()); // 수익률
+            chartData.add(dataPoint);
+        }
+
+        return chartData;
+    }
 
 }
 

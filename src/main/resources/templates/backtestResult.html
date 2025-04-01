@@ -468,19 +468,20 @@
 
 </script>
 
-
-
-<!-- 📌 월별 시드 결과 (항상 표시) -->
-<h2>월별 시드 결과</h2>
 <div class="content-box">
-<table border="1">
+    <h3 class="section-title">연도별 수익률</h3>
+</div>
+
+<div class="content-box">
+    <h3 class="section-title">월별 시드 결과</h3>
+    <table class="monthly-table">
     <thead>
     <tr>
         <th>날짜</th>
-        <th>누적 시드 (KRW)</th>
-        <th>누적 배당금 (KRW)</th>
-        <th>투자 원금 (KRW)</th>
-        <th>투자 수익 (KRW, %)</th>
+        <th>누적 시드 (원)</th>
+        <th>누적 배당금 (원)</th>
+        <th>투자 원금 (원)</th>
+        <th>투자 수익 (원, %)</th>
     </tr>
     </thead>
     <tbody>
@@ -504,40 +505,110 @@
     </tr>
     </tbody>
 </table>
+    <!-- 📌 토글 버튼 -->
+    <br>
+    <button class="stock-toggle-btn" onclick="toggleStockData()">📉 주가 데이터 보기</button>
+
+    <style>
+    .stock-toggle-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        border: 1px solid #ccc;         /* 연한 회색 테두리 */
+        background-color: #fff;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: 0.2s;
+    }
+
+    .stock-toggle-btn:hover {
+        background-color: #f7f7f7;
+        border-color: #aaa;
+    }
+
+    </style>
+
+    <!-- 📌 주가 데이터 (기본적으로 숨김) -->
+    <div id="stockDataSection" style="display: none;">
+        <div class="stock-table-grid">
+            <div th:each="entry : ${stockData}">
+                <div th:if="${entry.key != 'KRW=X'}" class="stock-table-box">
+                    <h3 th:text="${entry.key}"></h3>
+                    <table class="stock-table">
+                        <tr>
+                            <th>날짜</th>
+                            <th>주가(달러)</th>
+                            <th>주가(원)</th>
+                        </tr>
+                        <tr th:each="data : ${entry.value}">
+                            <td th:text="${data.date}"></td>
+                            <td th:text="${#numbers.formatDecimal(data.closePrice, 2, 2)}"></td>
+                            <td th:text="${#numbers.formatInteger(data.krwPrice, 3, 'COMMA')}"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .stock-table-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;  /* 가운데 정렬로 좌우 여백 최소화 */
+        gap: 40px;                 /* 테이블 사이 간격 */
+        max-width: 100%;           /* 화면 최대 너비 사용 */
+        padding: 0 20px;           /* 좌우 패딩만 살짝 */
+        box-sizing: border-box;   /* 패딩 포함해 너비 계산 */
+    }
+
+    .stock-table-box {
+        width: calc(25% - 20px); /* ✅ 한 줄에 4개 */
+        min-width: 250px;
+    }
+
+    .stock-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .stock-table th,
+    .stock-table td {
+        border: 1px solid #aaa;
+        padding: 6px;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .stock-table th {
+        background-color: #f0f0f0;
+    }
+</style>
+
 
 <!-- ✅ 수익 스타일 적용 -->
 <style>
+    .monthly-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .monthly-table th,
+    .monthly-table td {
+        border: 1px solid #aaa;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .monthly-table thead {
+        background-color: #f5f5f5;
+    }
+
     .profit-positive { color: #d81414; font-weight: bold; }  /* 🚀 양수(+)는 빨간색 */
     .profit-negative { color: #3434f4; font-weight: bold; } /* 📉 음수(-)는 파란색 */
     .neutral { color: black; font-weight: bold; } /* ⚫ 0일 경우 검은색 */
 </style>
 
-<!-- 📌 토글 버튼 -->
-<button onclick="toggleStockData()">📉 주가 데이터 보기</button>
-
-<!-- 📌 주가 데이터 (기본적으로 숨김) -->
-<div id="stockDataSection" style="display: none;">
-    <h2>주가 데이터</h2>
-    <div th:each="entry : ${stockData}">
-        <!-- KRW=X 제외 -->
-        <div th:if="${entry.key != 'KRW=X'}">
-            <h3 th:text="${entry.key}"></h3> <!-- 주식 티커 -->
-            <table border="1">
-                <tr>
-                    <th>날짜</th>
-                    <th>주가(달러)</th>
-                    <th>주가(원)</th>
-                </tr>
-                <tr th:each="data : ${entry.value}">
-                    <td th:text="${data.date}"></td>
-                    <td th:text="${#numbers.formatDecimal(data.closePrice, 2, 2)}"></td>
-                    <td th:text="${#numbers.formatInteger(data.krwPrice, 3, 'COMMA')}"></td>
-                </tr>
-            </table>
-        </div>
-    </div>
-</div>
 
 <div th:if="${result == null}">
     <p>No result data found.</p>
