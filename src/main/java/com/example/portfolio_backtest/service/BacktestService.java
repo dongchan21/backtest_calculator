@@ -315,16 +315,15 @@ public class BacktestService {
     }
 
     public List<Map<String, Object>> convertToHighchartsFormat(Map<Integer, Double> yearlyReturns) {
-        List<Map<String, Object>> chartData = new ArrayList<>();
-
-        for (Map.Entry<Integer, Double> entry : yearlyReturns.entrySet()) {
-            Map<String, Object> dataPoint = new HashMap<>();
-            dataPoint.put("name", String.valueOf(entry.getKey())); // 연도
-            dataPoint.put("y", entry.getValue()); // 수익률
-            chartData.add(dataPoint);
-        }
-
-        return chartData;
+        return yearlyReturns.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey()) // ✅ 연도(키) 기준으로 정렬
+                .map(entry -> {
+                    Map<String, Object> point = new HashMap<>();
+                    point.put("name", entry.getKey().toString());
+                    point.put("y", entry.getValue());
+                    return point;
+                })
+                .collect(Collectors.toList());
     }
 
 }

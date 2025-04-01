@@ -139,6 +139,11 @@ public class BacktestController {
         // 모델에 추가
         model.addAttribute("monthlySeedResults", monthlySeedResults);
 
+        Map<Integer, Double> yearlyReturns = backtestService.calculateYearlyReturns(monthlySeedResults);
+        List<Map<String, Object>> highchartData = backtestService.convertToHighchartsFormat(yearlyReturns);
+
+        model.addAttribute("yearlyReturns", highchartData);
+
         // ✅ 투자 원금, 수익금 데이터 생성 (그래프 용)
         List<Double> principalAmounts = new ArrayList<>();
         List<Double> totalSeeds = new ArrayList<>(); // ✅ 누적 시드 (Seed) 저장

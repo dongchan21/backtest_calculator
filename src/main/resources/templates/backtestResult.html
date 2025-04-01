@@ -470,6 +470,52 @@
 
 <div class="content-box">
     <h3 class="section-title">연도별 수익률</h3>
+    <!-- 연도별 수익률 그래프 -->
+    <div id="annualReturnsChart" style="width:100%; height:400px;"></div>
+
+    <script th:inline="javascript">
+        // 📊 자바에서 넘어온 yearlyReturns 데이터 바인딩
+        var yearlyReturns = /*[[${yearlyReturns}]]*/ [];
+
+        Highcharts.chart('annualReturnsChart', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: null,
+                style: { color: '#0000cc' }
+            },
+            xAxis: {
+                type: 'category',
+                title: { text: 'Year' }
+            },
+            yAxis: {
+                title: {
+                    text: 'Annual Return'
+                },
+                labels: {
+                    format: '{value:.1f}%'
+                }
+            },
+            tooltip: {
+                pointFormat: '<b>{point.y:.2f}%</b>'
+            },
+            plotOptions: {
+                column: {
+                    colorByPoint: true,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y:.1f}%',
+                        style: { fontWeight: 'bold' }
+                    }
+                }
+            },
+            series: [{
+                name: 'Portfolio',
+                data: yearlyReturns
+            }]
+        });
+    </script>
 </div>
 
 <div class="content-box">
