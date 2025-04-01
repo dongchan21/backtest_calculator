@@ -321,6 +321,14 @@ public class BacktestService {
                     Map<String, Object> point = new HashMap<>();
                     point.put("name", entry.getKey().toString());
                     point.put("y", entry.getValue());
+
+                    // ✅ 수익률에 따라 색상 지정
+                    if (entry.getValue() >= 0) {
+                        point.put("color", "#85cbe9");
+                    } else {
+                        point.put("color", "#2453cd"); // 파란색
+                    }
+
                     return point;
                 })
                 .collect(Collectors.toList());
