@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*") // or 적절한 origin
 @RestController
 @RequestMapping("/api/tickers")
 public class TickerSearchController {
@@ -24,6 +25,11 @@ public class TickerSearchController {
 
     @GetMapping
     public List<TickerDto> search(@RequestParam String query) {
+
+        if (query == null || query.trim().length() < 2) {
+            return List.of(); // 빈 리스트 반환 (BadRequest도 고려 가능)
+        }
+
         // DB에서 해당 query로 검색
         List<TickerEntity> entities = tickerService.search(query);
 

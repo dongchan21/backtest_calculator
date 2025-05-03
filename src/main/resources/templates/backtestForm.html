@@ -14,6 +14,7 @@
 
     <style>
 
+
         .section-divider {
             border-top: 2px solid #ccc; /* 회색 구분선 */
             margin: 20px 0; /* 위아래 여백 */
@@ -22,6 +23,10 @@
         /* ====== 자산 필드 레이아웃 ====== */
         .asset-row {
             margin-bottom: 8px;
+        }
+
+        .asset-label {
+            text-align: right;
         }
 
         .delete-btn {
@@ -36,32 +41,91 @@
             color: #000000;
         }
 
-        /* ====== 자동완성 스타일 ====== */
-        .autocomplete-container {
-            position: relative;
-            display: inline-block;
-            margin-left: 8px; /* 예시로 약간의 여백 */
-        }
-        .autocomplete-list {
-            border: 1px solid #ccc;
-            background-color: #fff;
-            position: absolute;
-            z-index: 999;
-            width: 200px; /* input 폭에 맞춰 조정 */
-            max-height: 150px;
-            overflow-y: auto;
-            margin-top: 2px;
-        }
-        .autocomplete-item {
-            padding: 5px;
-            cursor: pointer;
-        }
-        .autocomplete-item:hover {
-            background-color: #eee;
-        }
         body {
             font-family: 'Pretendard', sans-serif !important;
         }
+
+        .searchable-input {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .searchable-input input {
+            width: 200px;
+            padding-right: 30px;
+            cursor: pointer;
+            background-color: #fff;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        /* 모달 전체 화면 배경 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            width: 400px;
+            border-radius: 10px;
+        }
+
+        /* 닫기 버튼 */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .search-result-box {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .search-result-list {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            background-color: #f0f0f0;
+        }
+
     </style>
 
     <script>
@@ -70,37 +134,37 @@
            자산 추가/초기화 스크립트
          ========================== */
         let assetCount = 1;
+        let selectedInput = null;
 
         function addAssetFields() {
             assetCount++;
             const container = document.getElementById("assetContainer");
-            const newListId = `autocomplete-list-${assetCount}`;
             const assetId = `asset-${assetCount}`;
+            const inputId = `asset-input-${assetCount}`;
 
             const assetDiv = document.createElement("div");
             assetDiv.classList.add("asset-row");
             assetDiv.setAttribute("id", assetId);
 
             assetDiv.innerHTML = `
-        <label class="asset-label">자산 ${assetCount} </label>  <!-- ✅ 여기에 class 추가 -->
-        <div class="autocomplete-container">
-            <input type="text" name="assets" required
-                placeholder="예) SPY 또는 S&P500"
-                oninput="onTickerInput(this, '${newListId}')"
-            />
-            <div id="${newListId}" class="autocomplete-list" style="display:none;"></div>
+        <label class="asset-label">자산 ${assetCount}</label>
+        <div class="searchable-input" onclick="openSearchModal(${assetCount})">
+            <input type="text" class="asset-input" name="assets" required
+                   onclick="openSearchModalForInput(this)" readonly
+                   placeholder="예) SPY 또는 S&P500">
+            <i class="fa fa-search search-icon"></i>
         </div>
 
         <label>&nbsp;&nbsp;&nbsp;&nbsp;비율(%)</label>
         <input type="number" name="allocations" required placeholder="최대 100"/>
 
-        <!-- ✅ X 버튼 추가 -->
         <button type="button" class="delete-btn" onclick="removeAssetField('${assetId}')">
             <i class="fa fa-trash"></i>
         </button>
     `;
+
             container.appendChild(assetDiv);
-            updateAssetLabels();  // ✅ 자산 번호 재정렬
+            updateAssetLabels();
         }
 
 
@@ -139,18 +203,19 @@
 
             assetDiv.innerHTML = `
         <label class="asset-label">자산 1</label>
-        <div class="autocomplete-container">
-            <input type="text" name="assets" required
-                   oninput="onTickerInput(this, 'autocomplete-list-1')"
-                   placeholder="예) SPY 또는 S&P500"/>
-            <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
-        </div>
-        <label>&nbsp;&nbsp;&nbsp;&nbsp;비율(%)</label>
-        <input type="number" name="allocations" required placeholder="최대 100"/>
-        <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">
-            <i class="fa fa-trash"></i>
-        </button>
+    <div class="searchable-input" onclick="openSearchModal(1)">
+        <input type="text" class="asset-input" name="assets" required
+               onclick="openSearchModalForInput(this)" readonly
+               placeholder="예) SPY 또는 S&P500">
+        <i class="fa fa-search search-icon"></i>
+    </div>
+    <label>&nbsp;&nbsp;&nbsp;&nbsp;비율(%)</label>
+    <input type="number" name="allocations" required placeholder="최대 100">
+    <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">
+        <i class="fa fa-trash"></i>
+    </button>
     `;
+
 
             container.appendChild(assetDiv);
         }
@@ -354,8 +419,159 @@
             }
         });
 
+        let currentTargetInputId = null;
 
-    </script>
+        function openSearchModal() {
+            const modal = document.getElementById("searchModal");
+            modal.style.display = "block";
+
+            // ✅ 여기서 input이 존재할 때만 이벤트 연결
+            const input = document.getElementById("searchInput");
+            if (input && !input.dataset.listenerAdded) {
+                input.addEventListener("keydown", function (event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        const query = event.target.value.trim();
+
+                        if (query.length <= 1) {
+                            alert("검색어는 2글자 이상 입력해주세요.");
+                            return;
+                        }
+
+                        searchTicker(query);
+                    }
+                });
+
+                // ✅ 중복 방지용 플래그
+                input.dataset.listenerAdded = "true";
+            }
+        }
+
+        function closeSearchModal() {
+            document.getElementById("searchModal").style.display = "none";
+            document.getElementById("searchInput").value = "";
+            document.getElementById("searchResultList").innerHTML = "";
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            addAssetFields(); // 초기 자산 필드 1개 생성
+        });
+
+        window.addEventListener("click", function (event) {
+            const modal = document.getElementById("searchModal");
+            if (event.target === modal) {
+                closeSearchModal();  // 닫기 함수 호출
+            }
+        });
+
+        document.getElementById("searchInput").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                console.log("Enter key pressed");
+                event.preventDefault(); // 엔터 누르면 폼 제출 방지 (필요 시)
+                const query = event.target.value.trim();
+
+                if (query.length <= 1) {
+                    alert("검색어는 2글자 이상 입력해주세요.");
+                    return;
+                }
+
+                // 정상 입력일 경우 서버에 검색 요청
+                searchTicker(query);
+            }
+        });
+
+        function searchTicker(query) {
+            fetch(`/api/tickers?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultContainer = document.getElementById("searchResultList");
+                    resultContainer.innerHTML = "";  // 기존 결과 초기화
+
+                    if (data.length === 0) {
+                        resultContainer.innerHTML = "<p style='color: gray;'>검색 결과가 없습니다.</p>";
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const div = document.createElement("div");
+                        div.className = "search-result-item";
+                        div.textContent = `${item.fullName} (${item.ticker})`;
+
+                        // 🔘 검색 결과 클릭 시 입력 필드에 값 설정하고 팝업 닫기
+                        div.onclick = function () {
+                            selectedInput.value = `${item.fullName} (${item.ticker})`;  // 선택된 인풋에 값 반영
+                            closeSearchModal();
+                        };
+
+                        resultContainer.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    console.error("검색 중 오류 발생:", error);
+                });
+        }
+
+        function displaySearchResults(results) {
+            const resultContainer = document.getElementById("searchResult");
+            resultContainer.innerHTML = "";
+
+            if (results.length === 0) {
+                resultContainer.innerHTML = "<p>🔍 결과가 없습니다.</p>";
+                return;
+            }
+
+            results.forEach(item => {
+                const div = document.createElement("div");
+                div.classList.add("search-result-item");
+                div.textContent = `${item.fullName} (${item.ticker})`;
+
+                // 👉 클릭 시 선택
+                div.addEventListener("click", () => {
+                    selectedAssetInput.value = `${item.fullName} (${item.ticker})`;
+                    closeSearchModal();
+                });
+
+                resultContainer.appendChild(div);
+            });
+        }
+
+        function renderSearchResults(results) {
+            const resultList = document.getElementById("searchResults");
+            resultList.innerHTML = "";  // 기존 내용 초기화
+
+            results.forEach(result => {
+                const li = document.createElement("li");
+                li.classList.add("search-result-item");
+                li.textContent = `${result.name} (${result.ticker})`;
+
+                // ✅ 항목 클릭 시 폼에 반영
+                li.addEventListener("click", function () {
+                    const activeInput = document.querySelector(".asset-input.active");
+                    if (activeInput) {
+                        activeInput.value = `${result.name} (${result.ticker})`;
+                        activeInput.classList.remove("active");
+                    }
+                    closeSearchModal();
+                });
+
+                resultList.appendChild(li);
+            });
+        }
+
+        // ✅ 자산 입력 input을 클릭하면 팝업 열고 active 마크
+        function openSearchModalForInput(inputElement) {
+            selectedInput = inputElement;
+            document.querySelectorAll(".asset-input").forEach(el => el.classList.remove("active"));
+            inputElement.classList.add("active");
+            document.getElementById("searchModal").style.display = "block";
+
+            // 👉 입력창 초기화
+            document.getElementById("searchInput").value = "";
+
+            // 👉 결과창 초기화
+            document.getElementById("searchResultList").innerHTML = "";
+
+        }
 
     </script>
     <!-- Bootstrap CSS -->
@@ -426,23 +642,7 @@
 
     <h3>📊 자산 입력</h3>
     <hr class="section-divider">
-    <div id="assetContainer">
-        <div class="asset-row" id="asset-1">
-            <label class="asset-label">자산 1</label>
-            <div class="autocomplete-container">
-                <input type="text" name="assets" required
-                       oninput="onTickerInput(this, 'autocomplete-list-1')"
-                       placeholder="예) SPY 또는 S&P500">
-                <div id="autocomplete-list-1" class="autocomplete-list" style="display:none;"></div>
-            </div>
-            <label>&nbsp;&nbsp;&nbsp;&nbsp;비율(%)</label>
-            <input type="number" name="allocations" required placeholder="최대 100">
-            <button type="button" class="delete-btn" onclick="removeAssetField('asset-1')">
-                <i class="fa fa-trash"></i>
-            </button>
-        </div>
-    </div>
-
+    <div id="assetContainer"></div>
 
     <style>
         .total-allocation-container {
@@ -581,6 +781,15 @@
     <button type="submit" onclick="validateForm(event)">백테스트 실행</button>
     </div>
 </form>
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeSearchModal()">&times;</span>
+        <h4>종목 검색</h4>
+        <input type="text" id="searchInput" placeholder="종목명을 입력하세요. 예) SPY 또는 S&P500">
+        <div id="searchResultList" class="search-result-list"></div>
+        <ul id="searchResults"></ul>
+    </div>
+</div>
 
 </body>
 </html>
