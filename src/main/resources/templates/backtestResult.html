@@ -172,7 +172,7 @@
 <body>
 <nav class="navbar navbar-dark bg-dark">
     <!-- Navbar content -->
-    <a class="navbar-brand" href="#">적립식 투자 계산기</a>
+    <a class="navbar-brand" href="/backtest/form">적립식 투자 계산기</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -660,9 +660,8 @@
 <div th:if="${result == null}">
     <p>No result data found.</p>
 </div>
-
-<br>
-<a href="/backtest/form">Go Back</a>
-
+<a href="/backtest/form" class="btn btn-outline-secondary mt-3">
+    ⬅ 처음으로 돌아가기
+</a>
 </body>
 </html>
