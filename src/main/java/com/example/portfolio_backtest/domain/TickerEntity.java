@@ -8,8 +8,11 @@ public class TickerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Column(unique = true, nullable = false)
     private String ticker;
+
     private String name;
 
     // Getter / Setter

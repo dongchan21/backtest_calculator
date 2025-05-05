@@ -89,7 +89,7 @@ public class BacktestController {
 
         // 📌 Python 서버에 주식 데이터 요청
         RestTemplate restTemplate = new RestTemplate();
-        String pythonApiUrl = "http://localhost:5000/update_stock_data";  // Python Flask API URL
+        String pythonApiUrl = "http://flask:5000/update_stock_data";  // Python Flask API URL
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("tickers", tickers);

@@ -7,7 +7,7 @@ build/
 target/
 
 # IntelliJ IDEA
-.idea/
+backend/.idea/
 *.iml
 *.ipr
 *.iws
@@ -54,3 +54,6 @@ node_modules/
 # Ignore generated files in src (if necessary)
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+.env
+mysql/

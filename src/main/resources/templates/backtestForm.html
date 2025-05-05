@@ -470,21 +470,21 @@
                 closeSearchModal();  // 닫기 함수 호출
             }
         });
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("searchInput").addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    console.log("Enter key pressed");
+                    event.preventDefault(); // 엔터 누르면 폼 제출 방지 (필요 시)
+                    const query = event.target.value.trim();
 
-        document.getElementById("searchInput").addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                console.log("Enter key pressed");
-                event.preventDefault(); // 엔터 누르면 폼 제출 방지 (필요 시)
-                const query = event.target.value.trim();
-
-                if (query.length <= 1) {
-                    alert("검색어는 2글자 이상 입력해주세요.");
-                    return;
+                    if (query.length <= 1) {
+                        alert("검색어는 2글자 이상 입력해주세요.");
+                        return;
+                    }
+                    // 정상 입력일 경우 서버에 검색 요청
+                    searchTicker(query);
                 }
-
-                // 정상 입력일 경우 서버에 검색 요청
-                searchTicker(query);
-            }
+            })
         });
 
         function searchTicker(query) {
