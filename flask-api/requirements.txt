@@ -1,0 +1,7 @@
+Flask
+pandas
+yfinance
+pymysql
+sqlalchemy
+python-dotenv
+datetime
